@@ -2,6 +2,8 @@
 #include "ui_mainwindow.h"
 #include <QMessageBox>
 #include <QDebug>
+#include <QFileDialog>
+#include "gpxobject.h"
 
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
@@ -38,4 +40,26 @@ void MainWindow::on_action_Quit_triggered()
 void MainWindow::on_actionOpen_triggered()
 {
 	qDebug() << "Open selected";
+}
+
+void MainWindow::on_actionSave_As_triggered()
+{
+	qDebug() << "Save as selected";
+
+	// Select file for save
+	QString fileName = QFileDialog::getSaveFileName(this, "Save as");
+	QFile file(fileName);
+
+	// Open file
+	if (file.open(QFile::WriteOnly | QFile::Text))
+	{
+		// Save to file
+		GPXObject gpxObj;
+		gpxObj.saveToFile(&file);
+		file.close();
+	}
+	else
+	{
+		qDebug() << "Open file " << fileName << " failed!";
+	}
 }

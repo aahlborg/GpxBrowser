@@ -18,6 +18,7 @@
 #include "gpxroute.h"
 #include "gpxtrack.h"
 #include "gpxwaypoint.h"
+#include "gpxmetadata.h"
 
 class GPXObject : public QObject
 {
@@ -26,7 +27,7 @@ public:
 	explicit GPXObject(QObject *parent = 0);
 
 	// Load/save methods
-	void saveToFile(const QString fileName) const;
+	void saveToFile(QIODevice *file) const;
 	static GPXObject * loadFromFile(const QString fileName);
 
 	// Import/export other formats
@@ -41,7 +42,7 @@ public slots:
 private:
 	QString version;
 	QString creator;
-	MetadataType metadata;
+	GPXMetadata metadata;
 	std::vector<GPXRoute> routes;
 	std::vector<GPXTrack> tracks;
 	std::vector<GPXWaypoint> waypoints;

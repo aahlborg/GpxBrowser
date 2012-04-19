@@ -4,7 +4,7 @@
 #
 #-------------------------------------------------
 
-QT       += core gui
+QT       += core gui xml
 
 TARGET = GpxBrowser
 TEMPLATE = app
@@ -18,7 +18,9 @@ SOURCES += main.cpp\
 	gpxroute.cpp \
 	gpxtrack.cpp \
 	gpxpath.cpp \
-	gpxutilities.cpp
+	gpxutilities.cpp \
+    gpxmetadata.cpp \
+    gpxdatetime.cpp
 
 HEADERS  += mainwindow.h \
 	gpxtypes.h \
@@ -28,6 +30,8 @@ HEADERS  += mainwindow.h \
 	gpxroute.h \
 	gpxtrack.h \
 	gpxpath.h \
-	gpxutilities.h
+	gpxutilities.h \
+    gpxmetadata.h \
+    gpxdatetime.h
 
 FORMS    += mainwindow.ui

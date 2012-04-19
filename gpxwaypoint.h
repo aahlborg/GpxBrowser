@@ -16,6 +16,7 @@
 
 #include <vector>
 #include "gpxtypes.h"
+#include "gpxdatetime.h"
 
 #define CLEAR_OPT(varname, camelname, defaultval) void clear ## camelname() { \
 	have ## camelname = false; \
@@ -31,7 +32,7 @@ public:
 	const float getLatitude() const { return latitude; }
 	const float getLongitude() const { return longitude; }
 	const float getElevation() const { return elevation; }
-	const QDateTime getTime() const { return time; }
+	const GPXDateTime getTime() const { return time; }
 	const QString getName() const { return name; }
 	const QString getComment() const { return comment; }
 	const QString getDescription() const { return description; }
@@ -47,7 +48,7 @@ public:
 
 	// Functions for clearing optional fields
 	CLEAR_OPT(elevation, Elevation, 0.0)
-	CLEAR_OPT(time, Time, QDateTime())
+	CLEAR_OPT(time, Time, GPXDateTime())
 	CLEAR_OPT(name, Name, "")
 	CLEAR_OPT(comment, Comment, "")
 	CLEAR_OPT(description, Description, "")
@@ -60,7 +61,7 @@ public:
 
 	// Set optional fields
 	void setElevation(const float newElevation) { elevation = newElevation; haveElevation = true; }
-	void setTime(const QDateTime newTime) { time = newTime; haveTime = true; }
+	void setTime(const GPXDateTime newTime) { time = newTime; haveTime = true; }
 	void setName(const QString newName) { name = newName; haveName = true; }
 	void setComment(const QString newComment) { comment = newComment; haveComment = true; }
 	void setDescription(const QString newDescription) { description = newDescription; haveDescription = true; }
@@ -84,7 +85,7 @@ private:
 
 	// Optional data
 	float elevation;
-	QDateTime time;
+	GPXDateTime time;
 	QString name;
 	QString comment;
 	QString description;
