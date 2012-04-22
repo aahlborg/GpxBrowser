@@ -17,6 +17,7 @@ public:
 	explicit GPXDateTime(const QDateTime &dateTime);
 
 	QString toString() const;
+	static GPXDateTime fromString(const QString &s);
 };
 
 #endif // GPXDATETIME_H

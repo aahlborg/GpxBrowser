@@ -18,6 +18,9 @@
 #include "gpxtypes.h"
 #include "gpxdatetime.h"
 
+class QDomDocument;
+class QDomElement;
+
 #define CLEAR_OPT(varname, camelname, defaultval) void clear ## camelname() { \
 	have ## camelname = false; \
 	varname = defaultval; \
@@ -27,6 +30,7 @@ class GPXWaypoint
 {
 public:
 	GPXWaypoint();
+	explicit GPXWaypoint(const float newLatitude, const float newLongitude);
 
 	// Accessor methods for data members
 	const float getLatitude() const { return latitude; }
@@ -75,8 +79,8 @@ public:
 	double headingTo(const GPXWaypoint &otherWpt) const;
 	double speedTo(const GPXWaypoint &otherWpt) const;
 
-	// XML import/export methods
-	// getXML();
+	// GPX XML output
+	void outputXml(QDomDocument &document, QDomElement &wptElement) const;
 
 private:
 	// Position data

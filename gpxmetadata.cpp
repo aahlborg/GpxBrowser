@@ -5,17 +5,17 @@
 
 GPXMetadata::GPXMetadata()
 {
-	haveName = false;
-	haveDescription = false;
-	haveAuthor = false;
-	haveCopyright = false;
-	haveLinks = false;
-	haveTime = false;
-	haveKeywords = false;
-	haveBounds = false;
+	clearName();
+	clearDescription();
+	clearAuthor();
+	clearCopyright();
+	clearLinks();
+	clearTime();
+	clearKeywords();
+	clearBounds();
 
+	// DEBUG DATA
 	setName("Marcus Test");
-	qDebug() << "Metadata.name " << getName();
 	setDescription("Testfil för att testa saker.");
 
 	PersonType author = getAuthor();
@@ -26,13 +26,13 @@ GPXMetadata::GPXMetadata()
 	author.email.domain = "aahlborg.se";
 	author.hasEmail = true;
 
-	author.link.href = "http://gpxbrowser.aahlborg.se";
+	author.link.href = "https://bitbucket.org/aahlborg/gpxbrowser";
 	author.link.text = "GPXBrowser homepage";
 	author.link.hasText = true;
 	author.hasLink = true;
 	setAuthor(author);
 
-	GPXDateTime newTime = GPXDateTime(QDate(2012, 03, 20), QTime(13, 37, 14));
+	GPXDateTime newTime = GPXDateTime(QDate(2012, 03, 20), QTime(13, 37, 14, 430));
 	setTime(newTime);
 
 	BoundsType bounds = getBounds();
@@ -41,6 +41,7 @@ GPXMetadata::GPXMetadata()
 	bounds.maxLat = 58.6f;
 	bounds.maxLon = 11.8f;
 	setBounds(bounds);
+	// DEBUG DATA
 }
 
 void GPXMetadata::addLink(const LinkType newLink)

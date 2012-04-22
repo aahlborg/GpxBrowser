@@ -20,10 +20,10 @@ MainWindow::~MainWindow()
 void MainWindow::on_action_About_Gpx_Browser_triggered()
 {
 	QString text = "Gpx Browser Alpha\n"
+			"Copyright 2012 Marcus Ahlberg\n"
 			"\n"
 			"This program is currently under development.\n"
-			"Please report bugs to gpxbrowser@aahlborg.se.\n"
-			"Copyright 2012 Marcus Ahlberg";
+			"Please report bugs at https://bitbucket.org/aahlborg/gpxbrowser.";
 	QMessageBox::about(this, "About Gpx Browser", text);
 }
 

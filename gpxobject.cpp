@@ -6,8 +6,12 @@
 GPXObject::GPXObject(QObject *parent) :
 	QObject(parent)
 {
-	version = "1.1";
-	creator = "GPXlib Alpha - http://gpxbrowser.aahlborg.se";
+	setVersion("1.1");
+	setCreator("GPXlib Alpha - https://bitbucket.org/aahlborg/gpxbrowser");
+
+	// DEBUG DATA
+	waypoints.push_back(GPXWaypoint());
+	// DEBUG DATA
 }
 
 void GPXObject::saveToFile(QIODevice * file) const
@@ -29,6 +33,12 @@ void GPXObject::saveToFile(QIODevice * file) const
 	gpx.appendChild(metadataElement);
 
 	// Waypoints
+	for (unsigned int i = 0; i < waypoints.size(); ++i)
+	{
+		QDomElement wptElement = doc.createElement("wpt");
+		waypoints.at(i).outputXml(doc, wptElement);
+		gpx.appendChild(wptElement);
+	}
 
 	// Routes
 
@@ -39,8 +49,6 @@ void GPXObject::saveToFile(QIODevice * file) const
 	QTextStream fileStream(file);
 	fileStream.setCodec("UTF-8");
 	doc.save(fileStream, indentSize);
-
-	qDebug() << doc.documentElement().nodeName();
 
 	qDebug() << "Saved file";
 }
