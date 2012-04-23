@@ -11,6 +11,8 @@ GPXObject::GPXObject(QObject *parent) :
 
 	// DEBUG DATA
 	waypoints.push_back(GPXWaypoint());
+	routes.push_back(GPXRoute());
+	tracks.push_back(GPXTrack());
 	// DEBUG DATA
 }
 
@@ -33,7 +35,7 @@ void GPXObject::saveToFile(QIODevice * file) const
 	gpx.appendChild(metadataElement);
 
 	// Waypoints
-	for (unsigned int i = 0; i < waypoints.size(); ++i)
+	for (uint i = 0; i < waypoints.size(); ++i)
 	{
 		QDomElement wptElement = doc.createElement("wpt");
 		waypoints.at(i).outputXml(doc, wptElement);
@@ -41,8 +43,20 @@ void GPXObject::saveToFile(QIODevice * file) const
 	}
 
 	// Routes
+	for (uint i = 0; i < routes.size(); ++i)
+	{
+		QDomElement rteElement = doc.createElement("rte");
+		routes.at(i).outputXml(doc, rteElement);
+		gpx.appendChild(rteElement);
+	}
 
 	// Tracks
+	for (uint i = 0; i < tracks.size(); ++i)
+	{
+		QDomElement trkElement = doc.createElement("trk");
+		tracks.at(i).outputXml(doc, trkElement);
+		gpx.appendChild(trkElement);
+	}
 
 	// Save to file
 	const int indentSize = 2;

@@ -30,12 +30,12 @@ class GPXWaypoint
 {
 public:
 	GPXWaypoint();
-	explicit GPXWaypoint(const float newLatitude, const float newLongitude);
+	explicit GPXWaypoint(const double newLatitude, const double newLongitude);
 
 	// Accessor methods for data members
-	const float getLatitude() const { return latitude; }
-	const float getLongitude() const { return longitude; }
-	const float getElevation() const { return elevation; }
+	const double getLatitude() const { return latitude; }
+	const double getLongitude() const { return longitude; }
+	const double getElevation() const { return elevation; }
 	const GPXDateTime getTime() const { return time; }
 	const QString getName() const { return name; }
 	const QString getComment() const { return comment; }
@@ -59,12 +59,12 @@ public:
 	void clearLinks() { links.clear(); haveLinks = false; }
 
 	// Set position
-	void setPosition(const float newLatitude, const float newLongitude) { latitude = newLatitude; longitude = newLongitude; }
-	void setLatitude(const float newLatitude) { latitude = newLatitude; }
-	void setLongitude(const float newLongitude) { longitude = newLongitude; }
+	void setPosition(const double newLatitude, const double newLongitude) { latitude = newLatitude; longitude = newLongitude; }
+	void setLatitude(const double newLatitude) { latitude = newLatitude; }
+	void setLongitude(const double newLongitude) { longitude = newLongitude; }
 
 	// Set optional fields
-	void setElevation(const float newElevation) { elevation = newElevation; haveElevation = true; }
+	void setElevation(const double newElevation) { elevation = newElevation; haveElevation = true; }
 	void setTime(const GPXDateTime newTime) { time = newTime; haveTime = true; }
 	void setName(const QString newName) { name = newName; haveName = true; }
 	void setComment(const QString newComment) { comment = newComment; haveComment = true; }
@@ -84,11 +84,11 @@ public:
 
 private:
 	// Position data
-	float latitude;
-	float longitude;
+	double latitude;
+	double longitude;
 
 	// Optional data
-	float elevation;
+	double elevation;
 	GPXDateTime time;
 	QString name;
 	QString comment;

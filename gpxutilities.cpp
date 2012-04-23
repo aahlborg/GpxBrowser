@@ -32,7 +32,7 @@ double GPXUtilities::distanceTo_sphere(const double lat1, const double lon1, con
 	return c * earthMeanSphereRadius;
 }
 
-double GPXUtilities::distanceTo_ellipsoid(const double lat1, const double lon1, const double lat2, const double lon2)
+double GPXUtilities::distanceTo_ellipsoid(const double /*lat1*/, const double /*lon1*/, const double /*lat2*/, const double /*lon2*/)
 {
 	return -1.0;
 }
@@ -44,7 +44,7 @@ double GPXUtilities::headingTo_sphere(const double lat1, const double lon1, cons
 	return atan2(sin(dLon) * cos(lat2), cos(lat1) * sin(lat2) - sin(lat1) * cos(lat2) * cos(dLon));
 }
 
-double GPXUtilities::headingTo_ellipsoid(const double lat1, const double lon1, const double lat2, const double lon2)
+double GPXUtilities::headingTo_ellipsoid(const double /*lat1*/, const double /*lon1*/, const double /*lat2*/, const double /*lon2*/)
 {
 	return -1.0;
 }

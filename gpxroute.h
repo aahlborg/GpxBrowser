@@ -17,10 +17,16 @@
 #include "gpxroutebase.h"
 #include "gpxpath.h"
 
+class QDomDocument;
+class QDomElement;
+
 class GPXRoute : public GPXRouteBase
 {
 public:
 	GPXRoute();
+
+	// GPX XML output
+	void outputXml(QDomDocument &document, QDomElement &routeElement) const;
 
 private:
 	GPXPath path;

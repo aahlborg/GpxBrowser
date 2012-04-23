@@ -1,5 +1,9 @@
 /** @class GPXPath
  * Represents a series of connected waypoints in a route or a track
+ *
+ * <...>
+ *  <...pt>...</...pt>
+ * </...>
  */
 
 #ifndef GPXPATH_H
@@ -7,6 +11,9 @@
 
 #include <vector>
 #include "gpxwaypoint.h"
+
+class QDomDocument;
+class QDomElement;
 
 class GPXPath
 {
@@ -28,6 +35,9 @@ public:
 	// Calculations methods
 	double length() const;
 	double duration() const;
+
+	// GPX XML output
+	void outputXml(QDomDocument &document, QDomElement &pathElement, const QString nodeName) const;
 
 private:
 	std::vector<GPXWaypoint> waypoints;

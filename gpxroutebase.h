@@ -1,5 +1,13 @@
 /** @class GPXRouteBase
  * Represents a common base for routes and tracks
+ *
+ * <...>
+ *  <name>...</name>
+ *  <cmt>...</cmt>
+ *  <desc>...</desc>
+ *  <link>...</link>
+ *  ...
+ * </...>
  */
 
 #ifndef GPXROUTEBASE_H
@@ -7,6 +15,9 @@
 
 #include <vector>
 #include "gpxtypes.h"
+
+class QDomDocument;
+class QDomElement;
 
 #define CLEAR_OPT(varname, camelname, defaultval) void clear ## camelname() { \
 	have ## camelname = false; \
@@ -43,7 +54,12 @@ public:
 	void setName(const QString newName) { name = newName; haveName = true; }
 	void setComment(const QString newComment) { comment = newComment; haveComment = true; }
 	void setDescription(const QString newDescription) { description = newDescription; haveDescription = true; }
+	void addLink(const LinkType newLink);
+	void removeLink(const int linkIndex);
 	//void setNumber(const int newNumber) { number = newNumber; haveNumber = true; }
+
+	// GPX XML output
+	void outputXml(QDomDocument &document, QDomElement &routeBaseElement) const;
 
 private:
 	QString name;

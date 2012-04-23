@@ -29,7 +29,7 @@ GPXWaypoint::GPXWaypoint()
 	// DEBUG DATA
 }
 
-GPXWaypoint::GPXWaypoint(const float newLatitude, const float newLongitude)
+GPXWaypoint::GPXWaypoint(const double newLatitude, const double newLongitude)
 {
 	setPosition(newLatitude, newLongitude);
 	clearElevation();
@@ -136,7 +136,7 @@ void GPXWaypoint::outputXml(QDomDocument &document, QDomElement &wptElement) con
 	// Add link elements
 	if (haveLinks)
 	{
-		for (unsigned int i = 0; i < links.size(); ++i)
+		for (uint i = 0; i < links.size(); ++i)
 		{
 			QDomElement linkElement = document.createElement("link");
 			linkElement.setAttribute("href", links[i].href);

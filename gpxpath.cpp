@@ -1,14 +1,21 @@
 #include "gpxpath.h"
 #include <cfloat>
+#include <QDomDocument>
+#include <QDomElement>
 
 GPXPath::GPXPath()
 {
+	// DEBUG DATA
+	concatenate(GPXWaypoint(57.720829072, 11.941928406));
+	concatenate(GPXWaypoint(57.720877325, 11.942108352));
+	concatenate(GPXWaypoint(57.720890608, 11.942267466));
+	// DEBUG DATA
 }
 
 void GPXPath::concatenate(const GPXPath &otherPath)
 {
 	const std::vector<GPXWaypoint> *otherWpts = otherPath.getWaypoints();
-	for (unsigned int i = 0; i < otherWpts->size(); ++i)
+	for (uint i = 0; i < otherWpts->size(); ++i)
 	{
 		this->concatenate(otherWpts->at(i));
 	}
@@ -26,7 +33,7 @@ GPXPath GPXPath::subPath(const int start, const int end) const
 	// From start up to and including end
 	for (int i = start; i <= end; ++i)
 	{
-		newPath.concatenate(waypoints[i]);
+		newPath.concatenate(waypoints.at(i));
 	}
 
 	return newPath;
@@ -42,9 +49,9 @@ int GPXPath::closestWaypointIndex(const GPXWaypoint &otherWpt) const
 	double shortestDistance = DBL_MAX;
 	int iClosest = -1;
 
-	for (unsigned int i = 0; i < waypoints.size(); ++i)
+	for (uint i = 0; i < waypoints.size(); ++i)
 	{
-		double distance = waypoints[i].distanceTo(otherWpt);
+		double distance = waypoints.at(i).distanceTo(otherWpt);
 		if (distance < shortestDistance)
 		{
 			shortestDistance = distance;
@@ -59,9 +66,9 @@ double GPXPath::length() const
 {
 	double length = 0;
 
-	for (unsigned int i = 0; i < waypoints.size() - 1; ++i)
+	for (uint i = 0; i < waypoints.size() - 1; ++i)
 	{
-		length += waypoints[i].distanceTo(waypoints[i + 1]);
+		length += waypoints.at(i).distanceTo(waypoints[i + 1]);
 	}
 
 	return length;
@@ -70,5 +77,15 @@ double GPXPath::length() const
 double GPXPath::duration() const
 {
 	// Time from first to last waypoint
-	return waypoints[0].getTime().msecsTo(waypoints[waypoints.size() - 1].getTime()) / 1000.0;
+	return waypoints.at(0).getTime().msecsTo(waypoints.at(waypoints.size() - 1).getTime()) / 1000.0;
+}
+
+void GPXPath::outputXml(QDomDocument &document, QDomElement &pathElement, const QString nodeName) const
+{
+	for (uint i = 0; i < waypoints.size(); ++i)
+	{
+		QDomElement wptElement = document.createElement(nodeName);
+		waypoints.at(i).outputXml(document, wptElement);
+		pathElement.appendChild(wptElement);
+	}
 }

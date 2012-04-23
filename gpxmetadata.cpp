@@ -16,7 +16,7 @@ GPXMetadata::GPXMetadata()
 
 	// DEBUG DATA
 	setName("Marcus Test");
-	setDescription("Testfil för att testa saker.");
+	setDescription("Testfil for att testa saker.");
 
 	PersonType author = getAuthor();
 	author.name = "Marcus Ahlberg";
@@ -26,8 +26,8 @@ GPXMetadata::GPXMetadata()
 	author.email.domain = "aahlborg.se";
 	author.hasEmail = true;
 
-	author.link.href = "https://bitbucket.org/aahlborg/gpxbrowser";
-	author.link.text = "GPXBrowser homepage";
+	author.link.href = "http://www.topografix.com/gpx_validation.asp";
+	author.link.text = "Make sure to validate output";
 	author.link.hasText = true;
 	author.hasLink = true;
 	setAuthor(author);

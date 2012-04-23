@@ -4,8 +4,8 @@
 #include <QtCore>
 #include <vector>
 
-typedef float Latitude;
-typedef float Longitude;
+typedef double Latitude;
+typedef double Longitude;
 
 
 /** @struct LinkType
