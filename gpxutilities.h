@@ -1,6 +1,8 @@
 #ifndef GPXUTILITIES_H
 #define GPXUTILITIES_H
 
+#include "gpxtypes.h"
+
 class GPXUtilities
 {
 public:
@@ -14,14 +16,18 @@ public:
 
 	// Utility methods
 	static double sqr(const double x);
+	static bool validateLatitude(const double lat);
+	static bool validateLongitude(const double lon);
+	static bool validatePosition(const double lat, const double lon);
+	static bool validateBounds(const BoundsType bounds);
 
 private:
 	// Private settings
 	static bool useEllipsoid; // Whether to use ellipsoid or spherical Earth in calculations
 
 	// Private constants
-	static const double pi;// = 3.14159265358979; // Blueberry flavored favorite constant
-	static const double earthMeanSphereRadius;// = 6372800; // Minimizes root mean square of distance calculations
+	static const double pi; // Blueberry flavored favorite constant
+	static const double earthMeanSphereRadius; // Minimizes root mean square of distance calculations
 
 	// Private methods
 	static double distanceTo_sphere(const double lat1, const double lon1, const double lat2, const double lon2);
@@ -47,6 +53,29 @@ inline double GPXUtilities::toDeg(const double radians)
 inline double GPXUtilities::sqr(const double x)
 {
 	return x * x;
+}
+
+inline bool GPXUtilities::validateLatitude(const double lat)
+{
+	return (lat <= 90.0) && (lat >= -90.0);
+}
+
+inline bool GPXUtilities::validateLongitude(const double lon)
+{
+	return (lon <= 180.0) && (lon >= -180.0);
+}
+
+inline bool GPXUtilities::validatePosition(const double lat, const double lon)
+{
+	return validateLatitude(lat) && validateLongitude(lon);
+}
+
+inline bool GPXUtilities::validateBounds(const BoundsType bounds)
+{
+	return validateLatitude(bounds.minLat) &&
+		   validateLatitude(bounds.maxLat) &&
+		   validateLongitude(bounds.minLon) &&
+		   validateLongitude(bounds.maxLon);
 }
 
 #endif // GPXUTILITIES_H

@@ -33,8 +33,8 @@ public:
 	const QString getName() const { return name; }
 	const QString getComment() const { return comment; }
 	const QString getDescription() const { return description; }
-	const std::vector<LinkType> *getLinks() { return &links; }
-	//const int getNumber() { return number; }
+	const std::vector<LinkType> * getLinks() { return &links; }
+	//int getNumber() const { return number; }
 
 	// Functions informing which optional data are included
 	bool hasName() const { return haveName; }

@@ -21,7 +21,7 @@ public:
 	GPXPath();
 
 	// Accessor methods for data members
-	const std::vector<GPXWaypoint> *getWaypoints() const { return &waypoints; }
+	const std::vector<GPXWaypoint> * getWaypoints() const { return &waypoints; }
 
 	// Modification methods
 	void concatenate(const GPXPath &otherPath);

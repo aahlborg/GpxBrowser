@@ -33,14 +33,14 @@ public:
 	explicit GPXWaypoint(const double newLatitude, const double newLongitude);
 
 	// Accessor methods for data members
-	const double getLatitude() const { return latitude; }
-	const double getLongitude() const { return longitude; }
-	const double getElevation() const { return elevation; }
+	double getLatitude() const { return latitude; }
+	double getLongitude() const { return longitude; }
+	double getElevation() const { return elevation; }
 	const GPXDateTime getTime() const { return time; }
 	const QString getName() const { return name; }
 	const QString getComment() const { return comment; }
 	const QString getDescription() const { return description; }
-	const std::vector<LinkType> * const getLinks() { return &links; }
+	const std::vector<LinkType> * getLinks() { return &links; }
 
 	// Functions informing which optional data are included
 	bool hasElevation() const { return haveElevation; }
@@ -59,9 +59,9 @@ public:
 	void clearLinks() { links.clear(); haveLinks = false; }
 
 	// Set position
-	void setPosition(const double newLatitude, const double newLongitude) { latitude = newLatitude; longitude = newLongitude; }
-	void setLatitude(const double newLatitude) { latitude = newLatitude; }
-	void setLongitude(const double newLongitude) { longitude = newLongitude; }
+	bool setPosition(const double newLatitude, const double newLongitude);
+	bool setLatitude(const double newLatitude);
+	bool setLongitude(const double newLongitude);
 
 	// Set optional fields
 	void setElevation(const double newElevation) { elevation = newElevation; haveElevation = true; }
