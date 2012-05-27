@@ -38,7 +38,7 @@ public:
 
 	
 signals:
-	void tileReady(int zoom, int x, int y, QPixmap * tile, TileProvider * sender);
+	void tileReady(int zoom, int x, int y, QPixmap * tile);
 
 public slots:
 	void networkReply(QNetworkReply * reply);
@@ -49,6 +49,7 @@ private:
 	QNetworkAccessManager * networkManager;
 	QHash<QString, TileInfo> pendingTiles;
 	ProviderStatistics stats;
+	int tileServerCounter;
 };
 
 #endif // TILEPROVIDER_H

@@ -27,7 +27,7 @@ signals:
 	void dataUpdated();
 
 public slots:
-	void tileReady(int zoom, int x, int y, QPixmap * tile, TileProvider * sender);
+	void tileReady(int zoom, int x, int y, QPixmap * tile);
 
 private:
 	QPixmap * createTile(int zoom, int x, int y);

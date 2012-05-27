@@ -27,7 +27,7 @@ MapView::MapView(QWidget *parent) :
 	connect(&tileManager, SIGNAL(dataUpdated()), this, SLOT(update()));
 }
 
-void MapView::paintEvent(QPaintEvent * event)
+void MapView::paintEvent(QPaintEvent * /*event*/)
 {
 	QPainter painter(this);
 
@@ -97,33 +97,68 @@ void MapView::mouseMoveEvent(QMouseEvent * event)
 
 void MapView::mousePressEvent(QMouseEvent * event)
 {
-	mousePressed = true;
-	curCanvas = QPointF(event->x(), event->y());
-	oldCanvas = curCanvas;
-	update();
+	if (event->button() == Qt::LeftButton)
+	{
+		mousePressed = true;
+		curCanvas = QPointF(event->x(), event->y());
+		oldCanvas = curCanvas;
+		curTile = canvasToTile(curCanvas);
+		curCoord = canvasToCoord(curCanvas);
+		update();
+	}
 }
 
-void MapView::mouseReleaseEvent(QMouseEvent * /*event*/)
+void MapView::mouseReleaseEvent(QMouseEvent * event)
 {
-	mousePressed = false;
-	update();
+	if (event->button() == Qt::LeftButton)
+	{
+		mousePressed = false;
+		update();
+	}
 }
 
 void MapView::wheelEvent(QWheelEvent * event)
 {
-	int maxZoom = 16;
+	const int maxZoom = 16;
+	int zoomDelta = 0;
+
 	if (event->delta() > 0)
 	{
-		// Scroll worward, zoom in
-		if (zoom < maxZoom)
-			++zoom;
+		// Scroll forward, zoom in
+		if (zoom >= maxZoom)
+			return;
+		// Flag new zoom level but don't change yet
+		zoomDelta = 1;
 	}
 	else
 	{
 		// Scroll backwards, zoom out
-		if (zoom > 0)
-			--zoom;
+		if (zoom <= 0)
+			return;
+		// Flag new zoom level but don't change yet
+		zoomDelta = -1;
 	}
+
+	// Calculate new center coordinate, keeping coordinate under pointer constant
+
+	// These canvas points are invariant during zoom
+	const QPointF pointerCanvas = QPointF(event->pos());
+	const QPointF centerCanvas = QPointF(width() / 2, height() / 2);
+	// These transformations are made before changing the zoom and center coordinate
+	const QPointF pointerTileOld = canvasToTile(pointerCanvas);
+	const QPointF centerTileOld = canvasToTile(centerCanvas);
+	// This relation will be valid for both the old and the new zoom
+	const QPointF pointerCenterTile = centerTileOld - pointerTileOld;
+	// Change zoom now
+	zoom += zoomDelta;
+	// The new tile can be calculated in this manner
+	const QPointF pointerTileNew = qPow(2, zoomDelta) * pointerTileOld;
+	// The new center is the same number of tiles away
+	const QPointF centerTileNew = pointerTileNew + pointerCenterTile;
+	// Tile <-> coordinate transformation uses the new zoom value,
+	// but doesn't rely on the center coordinate, which is being calculated
+	centerCoord = tileToCoord(centerTileNew);
+
 	update();
 }
 

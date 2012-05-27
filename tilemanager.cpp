@@ -13,7 +13,7 @@ static const int tileSize = 256;
 TileManager::TileManager(QObject *parent) :
     QObject(parent)
 {
-	connect(&tileProvider, SIGNAL(tileReady(int,int,int,QPixmap*,TileProvider*)), this, SLOT(tileReady(int,int,int,QPixmap*,TileProvider*)));
+	connect(&tileProvider, SIGNAL(tileReady(int,int,int,QPixmap*)), this, SLOT(tileReady(int,int,int,QPixmap*)));
 }
 
 TileManager::~TileManager()
@@ -83,7 +83,7 @@ void TileManager::purge()
 	tiles.clear();
 }
 
-void TileManager::tileReady(int zoom, int x, int y, QPixmap * tile, TileProvider * sender)
+void TileManager::tileReady(int zoom, int x, int y, QPixmap * tile)
 {
 	// Replace tile in cache
 	if (NULL != tile)

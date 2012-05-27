@@ -12,7 +12,8 @@ static const int tileSize = 256;
 
 TileProvider::TileProvider(QObject *parent) :
 	QObject(parent),
-	stats(EMPTY_PROVIDER_STATS)
+	stats(EMPTY_PROVIDER_STATS),
+	tileServerCounter(0)
 {
 	networkManager = new QNetworkAccessManager();
 	connect(networkManager, SIGNAL(finished(QNetworkReply*)), this, SLOT(networkReply(QNetworkReply*)));
@@ -80,7 +81,7 @@ void TileProvider::networkReply(QNetworkReply * reply)
 	reply->deleteLater();
 
 	// Forward tile
-	emit tileReady(tileParams.zoom, tileParams.x, tileParams.y, tile, this);
+	emit tileReady(tileParams.zoom, tileParams.x, tileParams.y, tile);
 	++stats.numProvidedTiles;
 }
 
@@ -90,16 +91,21 @@ QString TileProvider::getTileURL(int zoom, int x, int y)
 	QString sX = QString::number(x);
 	QString sY = QString::number(y);
 
+	//QString serverVariants[] = {"a", "b", "c"}; // OSM
+	QString serverVariants[] = {"1", "2", "3"}; // Google
+
 	// URL format
 	// %1 zoom
 	// %2 x
 	// %3 y
-	QString googleMapsURL = "http://mt0.google.com/vt/&z=%1&x=%2&y=%3";
-	QString googleEarthURL = "http://khm1.google.se/kh/v=111&z=%1&x=%2&s=&y=%3";
-	QString googleTerrain1URL = "http://mt0.google.com/vt/lyrs=t@128,r@177186663&z=%1&x=%2&y=%3";
-	QString googleTerrain2URL = "http://mt0.google.com/vt/lyrs=t,r&z=%1&x=%2&y=%3";
-	QString osmMapnikURL = "http://a.tile.openstreetmap.org/%1/%2/%3.png";
-	QString osmCycleMapURL = "http://a.tile.opencyclemap.org/cycle/%1/%2/%3.png";
+	// %4 server
+	QString googleMapsURL = "http://mt%4.google.com/vt/&z=%1&x=%2&y=%3";
+	QString googleEarthURL = "http://khm%4.google.se/kh/v=111&z=%1&x=%2&s=&y=%3";
+	QString googleTerrain1URL = "http://mt%4.google.com/vt/lyrs=t@128,r@177186663&z=%1&x=%2&y=%3";
+	QString googleTerrain2URL = "http://mt%4.google.com/vt/lyrs=t,r&z=%1&x=%2&y=%3";
+	QString osmMapnikURL = "http://%4.tile.openstreetmap.org/%1/%2/%3.png";
+	QString osmCycleMapURL = "http://%4.tile.opencyclemap.org/cycle/%1/%2/%3.png";
+	QString topologyTilesURL = "http://toolserver.org/~cmarqu/hill/%1/%2/%3.png";
 
-	return googleMapsURL.arg(zoom).arg(x).arg(y);
+	return googleMapsURL.arg(zoom).arg(x).arg(y).arg(serverVariants[++tileServerCounter % 3]);
 }
