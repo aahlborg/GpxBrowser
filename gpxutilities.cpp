@@ -2,6 +2,8 @@
 #include <cmath>
 
 bool GPXUtilities::useEllipsoid = false;
+
+// Private constants
 const double GPXUtilities::pi = 3.14159265358979;
 const double GPXUtilities::earthMeanSphereRadius = 6372800;
 

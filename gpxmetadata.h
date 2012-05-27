@@ -27,7 +27,7 @@ public:
 	const QString getDescription() const { return description; }
 	const PersonType getAuthor() const { return author; }
 	const CopyrightType getCopyright() const { return copyright; }
-	const std::vector<LinkType> * const getLinks() const { return &links; }
+	const std::vector<LinkType> * getLinks() const { return &links; }
 	const GPXDateTime getTime() const { return time; }
 	const QString getKeywords() const { return keywords; }
 	const BoundsType getBounds() const { return bounds; }
@@ -61,7 +61,7 @@ public:
 	void removeLink(const int linkIndex);
 	void setTime(const GPXDateTime newTime) { time = newTime; haveTime = true; }
 	void setKeywords(const QString newKeywords) { keywords = newKeywords; haveKeywords = true; }
-	void setBounds(const BoundsType newBounds) { bounds = newBounds; haveBounds = true; }
+	bool setBounds(const BoundsType newBounds);
 
 	// GPX XML output
 	void outputXml(QDomDocument &document, QDomElement &metadataElement) const;

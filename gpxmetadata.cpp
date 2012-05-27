@@ -1,4 +1,5 @@
 #include "gpxmetadata.h"
+#include "gpxutilities.h"
 #include <QDomElement>
 #include <QDomDocument>
 #include <QDebug>
@@ -36,10 +37,10 @@ GPXMetadata::GPXMetadata()
 	setTime(newTime);
 
 	BoundsType bounds = getBounds();
-	bounds.minLat = 58.2f;
-	bounds.minLon = 11.5f;
-	bounds.maxLat = 58.6f;
-	bounds.maxLon = 11.8f;
+	bounds.minLat = 58.2;
+	bounds.minLon = 11.5;
+	bounds.maxLat = 58.6;
+	bounds.maxLon = 11.8;
 	setBounds(bounds);
 	// DEBUG DATA
 }
@@ -55,6 +56,17 @@ void GPXMetadata::removeLink(const int linkIndex)
 
 	if (links.size() == 0)
 		haveLinks = false;
+}
+
+bool GPXMetadata::setBounds(const BoundsType newBounds)
+{
+	if (GPXUtilities::validateBounds(newBounds))
+	{
+		bounds = newBounds;
+		haveBounds = true;
+		return true;
+	}
+	return false;
 }
 
 void GPXMetadata::outputXml(QDomDocument &document, QDomElement &metadataElement) const

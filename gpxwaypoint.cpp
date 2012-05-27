@@ -40,6 +40,37 @@ GPXWaypoint::GPXWaypoint(const double newLatitude, const double newLongitude)
 	clearLinks();
 }
 
+bool GPXWaypoint::setPosition(const double newLatitude, const double newLongitude)
+{
+	if (GPXUtilities::validatePosition(newLatitude, newLongitude))
+	{
+		latitude = newLatitude;
+		longitude = newLongitude;
+		return true;
+	}
+	return false;
+}
+
+bool GPXWaypoint::setLatitude(const double newLatitude)
+{
+	if (GPXUtilities::validateLatitude(newLatitude))
+	{
+		latitude = newLatitude;
+		return true;
+	}
+	return false;
+}
+
+bool GPXWaypoint::setLongitude(const double newLongitude)
+{
+	if (GPXUtilities::validateLongitude(newLongitude))
+	{
+		longitude = newLongitude;
+		return true;
+	}
+	return false;
+}
+
 void GPXWaypoint::addLink(const LinkType newLink)
 {
 	links.push_back(newLink);

@@ -67,20 +67,20 @@ void GPXObject::saveToFile(QIODevice * file) const
 	qDebug() << "Saved file";
 }
 
-GPXObject * GPXObject::loadFromFile(const QString fileName)
+GPXObject * GPXObject::loadFromFile(const QString /*fileName*/)
 {
 	return NULL;
 }
 
-void GPXObject::exportKML(const QString fileName) const
+void GPXObject::exportKML(const QString /*fileName*/) const
 {
 }
 
-GPXObject * GPXObject::importKML(QString fileName)
+GPXObject * GPXObject::importKML(QString /*fileName*/)
 {
 	return NULL;
 }
 
-void GPXObject::exportCSV(const QString fileName) const
+void GPXObject::exportCSV(const QString /*fileName*/) const
 {
 }
