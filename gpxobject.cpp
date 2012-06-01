@@ -25,6 +25,9 @@ void GPXObject::saveToFile(QIODevice * file) const
 
 	// Root <gpx> node
 	QDomElement gpx = doc.createElement("gpx");
+	gpx.setAttribute("xmlns", "http://www.topografix.com/GPX/1/1");
+	gpx.setAttribute("xmlns:xalan", "http://xml.apache.org/xalan");
+	gpx.setAttribute("xmlns:xsi", "http://www.w3.org/2001/XMLSchema-instance");
 	gpx.setAttribute("version", version);
 	gpx.setAttribute("creator", creator);
 	doc.appendChild(gpx);
