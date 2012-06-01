@@ -13,12 +13,14 @@ static const int tileSize = 256;
 TileManager::TileManager(QObject *parent) :
     QObject(parent)
 {
-	connect(&tileProvider, SIGNAL(tileReady(int,int,int,QPixmap*)), this, SLOT(tileReady(int,int,int,QPixmap*)));
+	tileProvider = new TileProvider("");
+	connect(tileProvider, SIGNAL(tileReady(int,int,int,QPixmap*)), this, SLOT(tileReady(int,int,int,QPixmap*)));
 }
 
 TileManager::~TileManager()
 {
 	purge();
+	delete tileProvider;
 }
 
 QPixmap * TileManager::getTile(int zoom, int x, int y)
@@ -41,7 +43,7 @@ QPixmap * TileManager::getTile(int zoom, int x, int y)
 		tiles.insert(getKey(zoom, x, y), tile);
 
 		// Request tile
-		tileProvider.requestTile(zoom, x, y);
+		tileProvider->requestTile(zoom, x, y);
 	}
 
 	return tile;

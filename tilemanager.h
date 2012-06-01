@@ -21,7 +21,7 @@ public:
 
 	void purge();
 
-	ProviderStatistics providerStats() { return tileProvider.statistics(); }
+	ProviderStatistics providerStats() { return tileProvider->statistics(); }
 
 signals:
 	void dataUpdated();
@@ -34,7 +34,7 @@ private:
 	QString getKey(int zoom, int x, int y);
 
 	QHash<QString, QPixmap *> tiles;
-	TileProvider tileProvider;
+	TileProvider * tileProvider;
 };
 
 #endif // TILEMANAGER_H

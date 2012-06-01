@@ -18,7 +18,7 @@ MapView::MapView(QWidget *parent) :
 	curCanvas(QPointF(0, 0)),
 	curTile(QPointF(0, 0)),
 	curCoord(QPointF(0, 0)),
-	zoom(0),
+	zoom(1),
 	centerCoord(QPointF(0, 0)),
 	mousePressed(false)
 {
@@ -41,7 +41,7 @@ void MapView::paintEvent(QPaintEvent * /*event*/)
 	painter.drawText(6, 15 * ++rowCount, QString("Zoom: %1").arg(zoom));
 	painter.drawText(6, 15 * ++rowCount, QString("Tile: %1 %2").arg(curTile.x()).arg(curTile.y()));
 	painter.drawText(6, 15 * ++rowCount, QString("Updates: %1").arg(++updateCount));
-	painter.drawText(6, 15 * ++rowCount, QString("Download: %1 MiB").arg(stats.numDownloadedBytes / 1048576.0));
+	painter.drawText(6, 15 * ++rowCount, QString("Download: %1 MiB").arg(stats.numReceivedBytes / 1048576.0));
 	painter.drawText(6, 15 * ++rowCount, QString("Tiles requested/provided: %1/%2").arg(stats.numRequestedTiles).arg(stats.numProvidedTiles));
 }
 

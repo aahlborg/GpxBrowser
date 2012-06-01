@@ -4,9 +4,10 @@
 #include <QObject>
 #include <QHash>
 
-class QNetworkAccessManager;
+// Forward declarations
+class DownloadManager;
+struct DownloadRequestObject;
 class QNetworkReply;
-
 class QPixmap;
 
 struct TileInfo
@@ -21,7 +22,7 @@ struct ProviderStatistics
 	uint numRequestedTiles;
 	uint numProvidedTiles;
 	uint numFailedRequests;
-	uint numDownloadedBytes;
+	uint numReceivedBytes;
 };
 
 const ProviderStatistics EMPTY_PROVIDER_STATS = {0, 0, 0, 0};
@@ -30,23 +31,27 @@ class TileProvider : public QObject
 {
 	Q_OBJECT
 public:
-	explicit TileProvider(QObject *parent = 0);
+	explicit TileProvider(QString url, bool invertX = false, bool invertY = false, bool quadKey = false, QObject *parent = 0);
 	~TileProvider();
 
 	virtual void requestTile(int zoom, int x, int y);
 	ProviderStatistics statistics() { return stats; }
 
-	
 signals:
 	void tileReady(int zoom, int x, int y, QPixmap * tile);
 
 public slots:
-	void networkReply(QNetworkReply * reply);
+	void downloadReply(DownloadRequestObject * request, QNetworkReply * reply);
 
 private:
 	QString getTileURL(int zoom, int x, int y);
 
-	QNetworkAccessManager * networkManager;
+	QString providerUrl;
+	bool flipX;
+	bool flipY;
+	bool useQuadKey;
+
+	DownloadManager * downloadManager;
 	QHash<QString, TileInfo> pendingTiles;
 	ProviderStatistics stats;
 	int tileServerCounter;
