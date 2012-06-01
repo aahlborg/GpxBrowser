@@ -14,13 +14,13 @@ static const int tileSize = 256;
 
 MapView::MapView(QWidget *parent) :
 	QWidget(parent),
+	mousePressed(false),
 	updateCount(0),
 	curCanvas(QPointF(0, 0)),
 	curTile(QPointF(0, 0)),
 	curCoord(QPointF(0, 0)),
 	zoom(1),
-	centerCoord(QPointF(0, 0)),
-	mousePressed(false)
+	centerCoord(QPointF(0, 0))
 {
 	setMouseTracking(true);
 	setAutoFillBackground(true);

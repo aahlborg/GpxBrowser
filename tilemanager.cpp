@@ -111,6 +111,9 @@ QPixmap * TileManager::createTile(int zoom, int x, int y)
 
 	painter.setBrush(Qt::NoBrush);
 	painter.setPen(Qt::SolidLine);
+	painter.setBackgroundMode(Qt::OpaqueMode);
+	painter.setBackground(QBrush(Qt::white));
+	painter.fillRect(0, 0, tileSize, tileSize, QBrush(Qt::white));
 
 	painter.drawText(100, 80, "zoom: " + QString::number(zoom));
 	painter.drawText(100, 100, "x: " + QString::number(x));
