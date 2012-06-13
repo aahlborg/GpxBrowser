@@ -1,4 +1,5 @@
 #include "tilemanager.h"
+#include "tileprovider.h"
 #include <qmath.h>
 #include <cmath>
 #include <QtAlgorithms>
@@ -7,20 +8,20 @@
 // Debug
 #include <QDebug>
 
-static const double pi = 3.14159265358979;
+static const double pi = 3.14159265358979323846;
 static const int tileSize = 256;
 
-TileManager::TileManager(QObject *parent) :
-    QObject(parent)
+TileManager::TileManager(TileProvider * provider) :
+	QObject(NULL)
 {
-	tileProvider = new TileProvider("");
-	connect(tileProvider, SIGNAL(tileReady(int,int,int,QPixmap*)), this, SLOT(tileReady(int,int,int,QPixmap*)));
+	tileProvider_ = provider;
+	connect(tileProvider_, SIGNAL(tileReady(int,int,int,QPixmap*)), this, SLOT(tileReady(int,int,int,QPixmap*)));
 }
 
 TileManager::~TileManager()
 {
 	purge();
-	delete tileProvider;
+	delete tileProvider_;
 }
 
 QPixmap * TileManager::getTile(int zoom, int x, int y)
@@ -33,17 +34,20 @@ QPixmap * TileManager::getTile(int zoom, int x, int y)
 	}
 
 	// Request cached tile
-	QPixmap * tile = tiles.value(getKey(zoom, x, y));
+	QPixmap * tile = tiles_.value(getKey(zoom, x, y));
 
 	// Create one if neccessary
 	if (NULL == tile)
 	{
+		// Request tile
+		if (!tileProvider_->requestTile(zoom, x, y))
+		{
+			return NULL;
+		}
+
 		// Create temporary
 		tile = createTile(zoom, x, y);
-		tiles.insert(getKey(zoom, x, y), tile);
-
-		// Request tile
-		tileProvider->requestTile(zoom, x, y);
+		tiles_.insert(getKey(zoom, x, y), tile);
 	}
 
 	return tile;
@@ -79,10 +83,20 @@ void TileManager::getTileCoord(int zoom, double x, double y, double &lat, double
 	lat = qAtan(sinh(pi * (1 - 2 * y / n))) * 180.0 / pi;
 }
 
+int TileManager::getMinZoom()
+{
+	return tileProvider_->getMinZoom();
+}
+
+int TileManager::getMaxZoom()
+{
+	return tileProvider_->getMaxZoom();
+}
+
 void TileManager::purge()
 {
-	qDeleteAll(tiles);
-	tiles.clear();
+	qDeleteAll(tiles_);
+	tiles_.clear();
 }
 
 void TileManager::tileReady(int zoom, int x, int y, QPixmap * tile)
@@ -91,17 +105,17 @@ void TileManager::tileReady(int zoom, int x, int y, QPixmap * tile)
 	if (NULL != tile)
 	{
 		// Remove old tile
-		QPixmap * oldTile = tiles.take(getKey(zoom, x, y));
+		QPixmap * oldTile = tiles_.take(getKey(zoom, x, y));
 		delete oldTile;
 		oldTile = NULL;
 
-		tiles.insert(getKey(zoom, x, y), tile);
+		tiles_.insert(getKey(zoom, x, y), tile);
 	}
 
 	qDebug() << "Got tile " << zoom << " " << x << " " << y;
 
 	// Signal an update
-	emit dataUpdated();
+	emit dataUpdated(this, zoom, x, y);
 }
 
 QPixmap * TileManager::createTile(int zoom, int x, int y)

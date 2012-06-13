@@ -1,19 +1,25 @@
 #ifndef MAPVIEW_H
 #define MAPVIEW_H
 
-#include "tilemanager.h"
+//#include "tilemanager.h"
 #include <QWidget>
-#include <QVector>
+#include <QList>
+
+class TileManager;
+
+typedef QList<TileManager *> TileManagerList;
 
 class MapView : public QWidget
 {
 	Q_OBJECT
 public:
 	explicit MapView(QWidget *parent = 0);
+	~MapView();
 	
 signals:
 	
 public slots:
+	void dataUpdated(TileManager * sender, int zoom, int x, int y);
 
 protected:
 	void paintEvent(QPaintEvent *event);
@@ -34,26 +40,29 @@ private:
 	// Good to have
 	QPoint floorPoint(const QPointF pointF);
 
+	bool isActive();
+
 	void drawTiles(QPainter &painter);
 
 	void moveMap(QPointF delta);
 
-	bool mousePressed;
+	bool mousePressed_;
 
 	// Debug and fun
-	int updateCount;
+	int updateCount_;
 
-	QPointF curCanvas;
-	QPointF oldCanvas;
-	QPointF curTile;
-	QPointF curCoord;
+	QPointF curCanvas_;
+	QPointF oldCanvas_;
+	QPointF curTile_;
+	QPointF curCoord_;
 
 	// Map specific stuff
-	int zoom;
-	QPointF centerCoord;
+	int zoom_;
+	QPointF centerCoord_;
 
 	// Tile specific stuff
-	TileManager tileManager;
+	TileManagerList tileManagers_;
+	int activeTileManager_;
 };
 
 #endif // MAPVIEW_H

@@ -34,8 +34,16 @@ public:
 	explicit TileProvider(QString url, bool invertX = false, bool invertY = false, bool quadKey = false, QObject *parent = 0);
 	~TileProvider();
 
-	virtual void requestTile(int zoom, int x, int y);
-	ProviderStatistics statistics() { return stats; }
+	void setServerNames(QString names[], int numNames);
+	void setZoomBounds(int minZoom, int maxZoom);
+	void setAddressLookupOptions(bool invertX, bool invertY, bool quadKey);
+	void setMaxConcurrentRequests(int maxConnections);
+
+	int getMinZoom();
+	int getMaxZoom();
+
+	bool requestTile(int zoom, int x, int y);
+	ProviderStatistics statistics() { return stats_; }
 
 signals:
 	void tileReady(int zoom, int x, int y, QPixmap * tile);
@@ -44,17 +52,24 @@ public slots:
 	void downloadReply(DownloadRequestObject * request, QNetworkReply * reply);
 
 private:
+	void init();
 	QString getTileURL(int zoom, int x, int y);
 
-	QString providerUrl;
-	bool flipX;
-	bool flipY;
-	bool useQuadKey;
+	QString providerUrl_;
+	QString serverNames_[5];
+	int nServers_;
+	int tileServerCounter_;
+	int nConnections_;
+	int minZoom_;
+	int maxZoom_;
+	bool flipX_;
+	bool flipY_;
+	bool useQuadKey_;
 
-	DownloadManager * downloadManager;
-	QHash<QString, TileInfo> pendingTiles;
-	ProviderStatistics stats;
-	int tileServerCounter;
+	DownloadManager * downloadManager_;
+	QHash<QString, TileInfo> pendingTiles_;
+	ProviderStatistics stats_;
+	int lastZoomLevel_;
 };
 
 #endif // TILEPROVIDER_H

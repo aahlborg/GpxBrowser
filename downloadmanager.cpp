@@ -8,21 +8,21 @@
 
 DownloadManager::DownloadManager(QObject *parent) :
 	QObject(parent),
-	maxConcurentJobs(8),
-	timeout(10000)
+	maxConcurentJobs_(8),
+	timeout_(10000)
 {
-	networkManager = new QNetworkAccessManager();
-	connect(networkManager, SIGNAL(finished(QNetworkReply*)), this, SLOT(networkReply(QNetworkReply*)));
+	networkManager_ = new QNetworkAccessManager();
+	connect(networkManager_, SIGNAL(finished(QNetworkReply*)), this, SLOT(networkReply(QNetworkReply*)));
 }
 
 DownloadManager::~DownloadManager()
 {
-	delete networkManager;
+	delete networkManager_;
 }
 
 void DownloadManager::request(DownloadRequestObject * request)
 {
-	waitingQueue.insert(request->url, request);
+	waitingQueue_.insert(request->url, request);
 	pollQueue();
 }
 
@@ -30,7 +30,7 @@ void DownloadManager::prioritize(int delta)
 {
 	// Change priority for all items in queue
 	//for (int i = 0; i < waitingQueue.size(); ++i)
-	DownloadQueueIterator i(waitingQueue);
+	DownloadQueueIterator i(waitingQueue_);
 	while (i.hasNext())
 	{
 		//waitingQueue.at(i).priority += delta;
@@ -39,31 +39,36 @@ void DownloadManager::prioritize(int delta)
 	}
 }
 
+void DownloadManager::setMaxConcurentJobs(int numConnections)
+{
+	maxConcurentJobs_ = numConnections;
+}
+
 void DownloadManager::networkReply(QNetworkReply * reply)
 {
 	QString url = reply->url().toString();
 
-	stats.numDownloadedBytes += reply->bytesAvailable();
+	stats_.numDownloadedBytes += reply->bytesAvailable();
 
 	// Check for errors
 	if (reply->error())
 	{
 		qDebug() << "Network error: " << reply->error();
-		pendingQueue.remove(url);
+		pendingQueue_.remove(url);
 		reply->deleteLater();
-		++stats.numFailedRequests;
+		++stats_.numFailedRequests;
 		return;
 	}
-	else if (!pendingQueue.contains(url))
+	else if (!pendingQueue_.contains(url))
 	{
 		qDebug() << "Error: No pending request for " << url;
 		reply->deleteLater();
-		++stats.numFailedRequests;
+		++stats_.numFailedRequests;
 		return;
 	}
 
 	// Take params for this tile
-	DownloadRequestObject * request = pendingQueue.take(url);
+	DownloadRequestObject * request = pendingQueue_.take(url);
 
 	qDebug() << "Reply for: " << url;
 
@@ -81,9 +86,9 @@ void DownloadManager::networkReply(QNetworkReply * reply)
 		// Add new request immediately
 		// OR: Add to waiting queue with increased prio (in case some high prio job has come up)
 		//     This would require changing the url of the request object
-		pendingQueue.insert(redirect.toString(), request);
-		networkManager->get(QNetworkRequest(redirect));
-		++stats.numRedirects;
+		pendingQueue_.insert(redirect.toString(), request);
+		networkManager_->get(QNetworkRequest(redirect));
+		++stats_.numRedirects;
 
 		// Schedule deletion of reply
 		reply->deleteLater();
@@ -96,18 +101,18 @@ void DownloadManager::networkReply(QNetworkReply * reply)
 
 	// Forward response
 	emit finished(request, reply);
-	++stats.numProvides;
+	++stats_.numProvides;
 }
 
 void DownloadManager::pollQueue()
 {
 	// Check for timeouts
-	DownloadQueueIterator i(pendingQueue);
+	DownloadQueueIterator i(pendingQueue_);
 	while (i.hasNext())
 	{
 		i.next();
 		int timePassed = QDateTime::currentMSecsSinceEpoch() - i.value()->startTime;
-		if (timePassed > timeout)
+		if (timePassed > timeout_)
 		{
 			// Abort job
 			// Report as failed
@@ -115,15 +120,15 @@ void DownloadManager::pollQueue()
 	}
 
 	// Check if we can add another job
-	if (pendingQueue.size() < maxConcurentJobs &&
-		waitingQueue.size() > 0)
+	if (pendingQueue_.size() < maxConcurentJobs_ &&
+		waitingQueue_.size() > 0)
 	{
 		// Start next job
 		DownloadRequestObject * request = nextJob();
-		pendingQueue.insert(request->url, request);
+		pendingQueue_.insert(request->url, request);
 
-		networkManager->get(QNetworkRequest(QUrl(request->url)));
-		++stats.numRequests;
+		networkManager_->get(QNetworkRequest(QUrl(request->url)));
+		++stats_.numRequests;
 
 		qDebug() << "Requesting " << request->url;
 	}
@@ -134,11 +139,11 @@ DownloadRequestObject * DownloadManager::nextJob()
 	int highestPrio = INT_MAX;
 	QString highestPrioKey;
 
-	if (0 == waitingQueue.size())
+	if (0 == waitingQueue_.size())
 		return NULL;
 
 	// Look for the highest prio job
-	DownloadQueueIterator i(waitingQueue);
+	DownloadQueueIterator i(waitingQueue_);
 	while (i.hasNext())
 	{
 		i.next();
@@ -151,5 +156,5 @@ DownloadRequestObject * DownloadManager::nextJob()
 	}
 
 	// Take job and return it
-	return waitingQueue.take(highestPrioKey);
+	return waitingQueue_.take(highestPrioKey);
 }

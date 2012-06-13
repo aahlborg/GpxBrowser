@@ -46,6 +46,7 @@ public:
 
 	void request(DownloadRequestObject * request);
 	void prioritize(int delta);
+	void setMaxConcurentJobs(int numConnections);
 
 signals:
 	void finished(DownloadRequestObject * request, QNetworkReply * reply);
@@ -58,15 +59,15 @@ private:
 	DownloadRequestObject * nextJob();
 
 	// Maximum unmber of simultaneous downloads
-	int maxConcurentJobs;
+	int maxConcurentJobs_;
 	// Timeout in milliseconds
-	int timeout;
+	int timeout_;
 	//QList<DownloadRequestObject *> waitingQueue;
 	//QList<DownloadRequestObject *> pendingQueue;
-	DownloadQueue waitingQueue;
-	DownloadQueue pendingQueue;
-	QNetworkAccessManager * networkManager;
-	DownloadStatistics stats;
+	DownloadQueue waitingQueue_;
+	DownloadQueue pendingQueue_;
+	QNetworkAccessManager * networkManager_;
+	DownloadStatistics stats_;
 };
 
 #endif // DOWNLOADMANAGER_H
