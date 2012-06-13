@@ -6,7 +6,9 @@
 #include <QList>
 
 class TileManager;
+struct TileProviderInfo;
 
+typedef QList<TileProviderInfo *> TileProviderInfoList;
 typedef QList<TileManager *> TileManagerList;
 
 class MapView : public QWidget
@@ -15,6 +17,10 @@ class MapView : public QWidget
 public:
 	explicit MapView(QWidget *parent = 0);
 	~MapView();
+
+	TileProviderInfoList * getTileProviders() { return &tileProviders_; }
+	void addTileProvider(TileProviderInfo &providerInfo);
+	void setActiveTileProvider(int index);
 	
 signals:
 	
@@ -61,8 +67,9 @@ private:
 	QPointF centerCoord_;
 
 	// Tile specific stuff
+	TileProviderInfoList tileProviders_;
 	TileManagerList tileManagers_;
-	int activeTileManager_;
+	int activeTileProvider_;
 };
 
 #endif // MAPVIEW_H

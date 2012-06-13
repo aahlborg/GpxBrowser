@@ -2,6 +2,9 @@
 #define MAINWINDOW_H
 
 #include <QMainWindow>
+#include <QList>
+
+class QAction;
 
 namespace Ui {
 class MainWindow;
@@ -26,7 +29,12 @@ private slots:
 
 	void on_actionSave_As_triggered();
 
+	void on_actionTileProvider_triggered();
+
 private:
+	void updateTileProviderList();
+	QList<QAction *> tileProviderMenuItems_;
+
 	Ui::MainWindow *ui;
 };
 

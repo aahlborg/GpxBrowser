@@ -3,6 +3,7 @@
 
 #include <QObject>
 #include <QHash>
+#include <QList>
 
 // Forward declarations
 class DownloadManager;
@@ -27,14 +28,30 @@ struct ProviderStatistics
 
 const ProviderStatistics EMPTY_PROVIDER_STATS = {0, 0, 0, 0};
 
+struct TileProviderInfo
+{
+	QString name;
+	QString copyright;
+	QString url;
+	QList<QString> serverList;
+	int numConnections;
+	int minZoom;
+	int maxZoom;
+	bool invertX;
+	bool invertY;
+	bool quadKey;
+};
+
+const TileProviderInfo EMPTY_TILE_PROVIDER_INFO = {"", "", "", QList<QString>(), 0, 0, 0, false, false, false};
+
 class TileProvider : public QObject
 {
 	Q_OBJECT
 public:
-	explicit TileProvider(QString url, bool invertX = false, bool invertY = false, bool quadKey = false, QObject *parent = 0);
+	explicit TileProvider(TileProviderInfo &info);
 	~TileProvider();
 
-	void setServerNames(QString names[], int numNames);
+	//void setServerNames(QString names[], int numNames);
 	void setZoomBounds(int minZoom, int maxZoom);
 	void setAddressLookupOptions(bool invertX, bool invertY, bool quadKey);
 	void setMaxConcurrentRequests(int maxConnections);
@@ -55,21 +72,13 @@ private:
 	void init();
 	QString getTileURL(int zoom, int x, int y);
 
-	QString providerUrl_;
-	QString serverNames_[5];
-	int nServers_;
-	int tileServerCounter_;
-	int nConnections_;
-	int minZoom_;
-	int maxZoom_;
-	bool flipX_;
-	bool flipY_;
-	bool useQuadKey_;
+	TileProviderInfo info_;
 
 	DownloadManager * downloadManager_;
 	QHash<QString, TileInfo> pendingTiles_;
 	ProviderStatistics stats_;
 	int lastZoomLevel_;
+	int tileServerCounter_;
 };
 
 #endif // TILEPROVIDER_H

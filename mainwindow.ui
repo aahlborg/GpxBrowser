@@ -39,10 +39,15 @@
     <addaction name="actionAbout_Qt"/>
     <addaction name="action_About_Gpx_Browser"/>
    </widget>
+   <widget class="QMenu" name="menuMap">
+    <property name="title">
+     <string>&amp;Map</string>
+    </property>
+   </widget>
    <addaction name="menuFile"/>
+   <addaction name="menuMap"/>
    <addaction name="menuHelp"/>
   </widget>
-  <widget class="QStatusBar" name="statusBar"/>
   <action name="action_Quit">
    <property name="text">
     <string>&amp;Quit</string>

@@ -1,5 +1,6 @@
 #include "mapview.h"
 #include "tilemanager.h"
+#include "tileprovider.h"
 #include <QMouseEvent>
 #include <QPaintEvent>
 #include <QPainter>
@@ -23,19 +24,24 @@ MapView::MapView(QWidget *parent) :
 	curCoord_(QPointF(0, 0)),
 	zoom_(1),
 	centerCoord_(QPointF(0, 0)),
-	activeTileManager_(-1)
+	activeTileProvider_(-1)
 {
+	qDebug() << "MapView: Constructor";
+
 	setMouseTracking(true);
 	setAutoFillBackground(true);
 
-
 	//QString serverVariants[] = {"a", "b", "c"}; // OSM
-	QString serverVariants[] = {"1", "2", "3"}; // Google, Bing, Eniro
+	QList<QString> serverVariants; // Google, Bing, Eniro
+	serverVariants.append("1");
+	serverVariants.append("2");
+	serverVariants.append("3");
 
-	QString googleMapsURL = "http://mt%4.google.com/vt/&z=%1&x=%2&y=%3";
-	QString googleEarthURL = "http://khm%4.google.se/kh/v=111&z=%1&x=%2&s=&y=%3";
-	QString googleTerrain1URL = "http://mt%4.google.com/vt/lyrs=t@128,r@177186663&z=%1&x=%2&y=%3";
-	QString googleTerrain2URL = "http://mt%4.google.com/vt/lyrs=t,r&z=%1&x=%2&y=%3";
+	QList<QString> serverVariantsOSM; // OSM
+	serverVariantsOSM.append("a");
+	serverVariantsOSM.append("b");
+	serverVariantsOSM.append("c");
+
 	// Open street map Mapnik, servers: a-c
 	QString osmMapnikURL = "http://%4.tile.openstreetmap.org/%1/%2/%3.png";
 	// Open sycle map, servers: a-c
@@ -52,17 +58,165 @@ MapView::MapView(QWidget *parent) :
 	QString hittaMapURL = "http://bf.static.hitta.se/tile/v1/0/%1/%2/%3";
 	QString hittaAerialURL = "http://bf.static.hitta.se/tile/v1/1/%1/%2/%3";
 
-	// Bing map
-	QString bingMapURL = "http://ecn.dynamic.t%4.tiles.virtualearth.net/comp/CompositionHandler/%1?it=G,VE,BX,L,LA&shading=hill";
-	TileProvider * bingMapProvider = new TileProvider(bingMapURL);
-	bingMapProvider->setServerNames(serverVariants, 3);
-	bingMapProvider->setAddressLookupOptions(false, false, true);
-	bingMapProvider->setZoomBounds(1, 18);
-	bingMapProvider->setMaxConcurrentRequests(8);
+	TileProviderInfo providerInfo;
 
-	tileManagers_.append(new TileManager(bingMapProvider));
-	activeTileManager_ = 0;
-	connect(tileManagers_[0], SIGNAL(dataUpdated(TileManager*,int,int,int)), this, SLOT(dataUpdated(TileManager*,int,int,int)));
+	// Bing Maps
+	providerInfo.name = "Bing Maps";
+	providerInfo.copyright = "Copyright Bing";
+	providerInfo.url = "http://ecn.dynamic.t%4.tiles.virtualearth.net/comp/CompositionHandler/%1?it=G,VE,BX,L,LA&shading=hill";
+	providerInfo.serverList.clear();
+	providerInfo.serverList.append(serverVariants);
+	providerInfo.numConnections = 8;
+	providerInfo.minZoom = 1;
+	providerInfo.maxZoom = 18;
+	providerInfo.invertX = false;
+	providerInfo.invertY = false;
+	providerInfo.quadKey = true;
+	addTileProvider(providerInfo);
+
+	// Google Maps
+	providerInfo.name = "Google Maps";
+	providerInfo.copyright = "Copyright Google";
+	providerInfo.url = "http://mt%4.google.com/vt/&z=%1&x=%2&y=%3";
+	providerInfo.serverList.clear();
+	providerInfo.serverList.append(serverVariants);
+	providerInfo.numConnections = 8;
+	providerInfo.minZoom = 1;
+	providerInfo.maxZoom = 18;
+	providerInfo.invertX = false;
+	providerInfo.invertY = false;
+	providerInfo.quadKey = false;
+	addTileProvider(providerInfo);
+
+	// Google Aerial
+	providerInfo.name = "Google Aerial";
+	providerInfo.copyright = "Copyright Google";
+	providerInfo.url = "http://khm%4.google.se/kh/v=111&z=%1&x=%2&s=&y=%3";
+	providerInfo.serverList.clear();
+	providerInfo.serverList.append(serverVariants);
+	providerInfo.numConnections = 8;
+	providerInfo.minZoom = 1;
+	providerInfo.maxZoom = 18;
+	providerInfo.invertX = false;
+	providerInfo.invertY = false;
+	providerInfo.quadKey = false;
+	addTileProvider(providerInfo);
+
+	// Google Terrain
+	providerInfo.name = "Google Terrain";
+	providerInfo.copyright = "Copyright Google";
+	providerInfo.url = "http://mt%4.google.com/vt/lyrs=t,r&z=%1&x=%2&y=%3";
+	providerInfo.serverList.clear();
+	providerInfo.serverList.append(serverVariants);
+	providerInfo.numConnections = 8;
+	providerInfo.minZoom = 1;
+	providerInfo.maxZoom = 15;
+	providerInfo.invertX = false;
+	providerInfo.invertY = false;
+	providerInfo.quadKey = false;
+	addTileProvider(providerInfo);
+
+	// OSM Mapnik
+	providerInfo.name = "OSM Mapnik";
+	providerInfo.copyright = "Copyright OpenStreetMap contributors";
+	providerInfo.url = "http://%4.tile.openstreetmap.org/%1/%2/%3.png";
+	providerInfo.serverList.clear();
+	providerInfo.serverList.append(serverVariantsOSM);
+	providerInfo.numConnections = 2;
+	providerInfo.minZoom = 1;
+	providerInfo.maxZoom = 18;
+	providerInfo.invertX = false;
+	providerInfo.invertY = false;
+	providerInfo.quadKey = false;
+	addTileProvider(providerInfo);
+
+	// OSM Cyklemap
+	providerInfo.name = "OSM Cyclemap";
+	providerInfo.copyright = "Copyright OpenStreetMap contributors";
+	providerInfo.url = "http://%4.tile.opencyclemap.org/cycle/%1/%2/%3.png";
+	providerInfo.serverList.clear();
+	providerInfo.serverList.append(serverVariantsOSM);
+	providerInfo.numConnections = 2;
+	providerInfo.minZoom = 1;
+	providerInfo.maxZoom = 18;
+	providerInfo.invertX = false;
+	providerInfo.invertY = false;
+	providerInfo.quadKey = false;
+	addTileProvider(providerInfo);
+
+	// Eniro Map
+	providerInfo.name = "Eniro Map";
+	providerInfo.copyright = "Copyright Eniro";
+	providerInfo.url = "http://map0%4.eniro.no/geowebcache/service/tms1.0.0/map/%1/%2/%3.png";
+	providerInfo.serverList.clear();
+	providerInfo.serverList.append(serverVariants);
+	providerInfo.numConnections = 4;
+	providerInfo.minZoom = 1;
+	providerInfo.maxZoom = 17;
+	providerInfo.invertX = false;
+	providerInfo.invertY = true;
+	providerInfo.quadKey = false;
+	addTileProvider(providerInfo);
+
+	// Eniro Aerial
+	providerInfo.name = "Eniro Aerial";
+	providerInfo.copyright = "Copyright Eniro";
+	providerInfo.url = "http://map0%4.eniro.no/geowebcache/service/tms1.0.0/aerial/%1/%2/%3.jpeg";
+	providerInfo.serverList.clear();
+	providerInfo.serverList.append(serverVariants);
+	providerInfo.numConnections = 4;
+	providerInfo.minZoom = 2;
+	providerInfo.maxZoom = 18;
+	providerInfo.invertX = false;
+	providerInfo.invertY = true;
+	providerInfo.quadKey = false;
+	addTileProvider(providerInfo);
+
+	// Eniro Nautical
+	providerInfo.name = "Eniro Nautical";
+	providerInfo.copyright = "Copyright Eniro";
+	providerInfo.url = "http://map0%4.eniro.no/geowebcache/service/tms1.0.0/nautical/%1/%2/%3.png";
+	providerInfo.serverList.clear();
+	providerInfo.serverList.append(serverVariants);
+	providerInfo.numConnections = 4;
+	providerInfo.minZoom = 1;
+	providerInfo.maxZoom = 17;
+	providerInfo.invertX = false;
+	providerInfo.invertY = true;
+	providerInfo.quadKey = false;
+	addTileProvider(providerInfo);
+
+	/* Hitta redirects does not work
+	// Hitta Map
+	providerInfo.name = "Hitta Map";
+	providerInfo.copyright = "Copyright Hitta.se";
+	providerInfo.url = "http://bf.static.hitta.se/tile/v1/0/%1/%2/%3";
+	providerInfo.serverList.clear();
+	//providerInfo.serverList.append(serverVariants);
+	providerInfo.numConnections = 4;
+	providerInfo.minZoom = 1;
+	providerInfo.maxZoom = 17;
+	providerInfo.invertX = false;
+	providerInfo.invertY = false;
+	providerInfo.quadKey = false;
+	addTileProvider(providerInfo);
+
+	// Hitta Aerial
+	providerInfo.name = "Hitta Aerial";
+	providerInfo.copyright = "Copyright Hitta.se";
+	providerInfo.url = "http://bf.static.hitta.se/tile/v1/1/%1/%2/%3";
+	providerInfo.serverList.clear();
+	//providerInfo.serverList.append(serverVariants);
+	providerInfo.numConnections = 4;
+	providerInfo.minZoom = 1;
+	providerInfo.maxZoom = 17;
+	providerInfo.invertX = false;
+	providerInfo.invertY = false;
+	providerInfo.quadKey = false;
+	addTileProvider(providerInfo);
+	*/
+
+	activeTileProvider_ = 0;
 }
 
 MapView::~MapView()
@@ -72,7 +226,7 @@ MapView::~MapView()
 
 bool MapView::isActive()
 {
-	if (tileManagers_.empty() || activeTileManager_ < 0)
+	if (tileManagers_.empty() || activeTileProvider_ < 0)
 	{
 		return false;
 	}
@@ -82,9 +236,45 @@ bool MapView::isActive()
 	}
 }
 
+void MapView::addTileProvider(TileProviderInfo &providerInfo)
+{
+	// Copy info
+	TileProviderInfo * newProviderInfo = new TileProviderInfo();
+	newProviderInfo->name = providerInfo.name;
+	newProviderInfo->copyright = providerInfo.copyright;
+	newProviderInfo->url = providerInfo.url;
+	newProviderInfo->serverList.append(providerInfo.serverList);
+	newProviderInfo->numConnections = providerInfo.numConnections;
+	newProviderInfo->minZoom = providerInfo.minZoom;
+	newProviderInfo->maxZoom = providerInfo.maxZoom;
+	newProviderInfo->invertX = providerInfo.invertX;
+	newProviderInfo->invertY = providerInfo.invertY;
+	newProviderInfo->quadKey = providerInfo.quadKey;
+
+	// Create TileManager
+	TileManager * newTileManager = new TileManager(new TileProvider(*newProviderInfo));
+	connect(newTileManager, SIGNAL(dataUpdated(TileManager*,int,int,int)), this, SLOT(dataUpdated(TileManager*,int,int,int)));
+
+	// Add to list
+	tileProviders_.append(newProviderInfo);
+	tileManagers_.append(newTileManager);
+}
+
+void MapView::setActiveTileProvider(int index)
+{
+	if (index < 0 || index > tileProviders_.size())
+	{
+		qDebug() << "MapView: Error: Invalid tile provider index";
+		return;
+	}
+
+	activeTileProvider_ = index;
+	update();
+}
+
 void MapView::dataUpdated(TileManager * sender, int /*zoom*/, int /*x*/, int /*y*/)
 {
-	if (isActive() && sender == tileManagers_.at(activeTileManager_))
+	if (isActive() && sender == tileManagers_.at(activeTileProvider_))
 	{
 		update();
 	}
@@ -100,7 +290,7 @@ void MapView::paintEvent(QPaintEvent * /*event*/)
 	drawTiles(painter);
 	int rowCount = 0;
 
-	ProviderStatistics stats = tileManagers_.at(activeTileManager_)->providerStats();
+	ProviderStatistics stats = tileManagers_.at(activeTileProvider_)->providerStats();
 
 	painter.drawText(6, 15 * ++rowCount, QString("Canvas: %1 %2").arg(curCanvas_.x()).arg(curCanvas_.y()));
 	painter.drawText(6, 15 * ++rowCount, QString("Coordinates: %1 %2").arg(curCoord_.x()).arg(curCoord_.y()));
@@ -129,7 +319,7 @@ void MapView::drawTiles(QPainter &painter)
 	{
 		for (int tileY = firstTile.y(); tileY <= lastTile.y(); ++tileY)
 		{
-			QPixmap * tileImg = tileManagers_.at(activeTileManager_)->getTile(zoom_, tileX, tileY);
+			QPixmap * tileImg = tileManagers_.at(activeTileProvider_)->getTile(zoom_, tileX, tileY);
 			if (NULL != tileImg)
 			{
 				// To floor or not to floor...
@@ -193,7 +383,7 @@ void MapView::wheelEvent(QWheelEvent * event)
 	if (event->delta() > 0)
 	{
 		// Scroll forward, zoom in
-		if (zoom_ >= tileManagers_.at(activeTileManager_)->getMaxZoom())
+		if (zoom_ >= tileManagers_.at(activeTileProvider_)->getMaxZoom())
 			return;
 		// Flag new zoom level but don't change yet
 		zoomDelta = 1;
@@ -201,7 +391,7 @@ void MapView::wheelEvent(QWheelEvent * event)
 	else
 	{
 		// Scroll backwards, zoom out
-		if (zoom_ <= tileManagers_.at(activeTileManager_)->getMinZoom())
+		if (zoom_ <= tileManagers_.at(activeTileProvider_)->getMinZoom())
 			return;
 		// Flag new zoom level but don't change yet
 		zoomDelta = -1;

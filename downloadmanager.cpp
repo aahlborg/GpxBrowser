@@ -53,7 +53,7 @@ void DownloadManager::networkReply(QNetworkReply * reply)
 	// Check for errors
 	if (reply->error())
 	{
-		qDebug() << "Network error: " << reply->error();
+		qDebug() << "DownloadManager: Network error: " << reply->error();
 		pendingQueue_.remove(url);
 		reply->deleteLater();
 		++stats_.numFailedRequests;
@@ -61,7 +61,7 @@ void DownloadManager::networkReply(QNetworkReply * reply)
 	}
 	else if (!pendingQueue_.contains(url))
 	{
-		qDebug() << "Error: No pending request for " << url;
+		qDebug() << "DownloadManager: Error: No pending request for " << url;
 		reply->deleteLater();
 		++stats_.numFailedRequests;
 		return;
@@ -70,7 +70,7 @@ void DownloadManager::networkReply(QNetworkReply * reply)
 	// Take params for this tile
 	DownloadRequestObject * request = pendingQueue_.take(url);
 
-	qDebug() << "Reply for: " << url;
+	qDebug() << "DownloadManager: Reply for: " << url;
 
 	// Check if there is a redirect
 	QUrl redirect = reply->attribute(QNetworkRequest::RedirectionTargetAttribute).toUrl();
@@ -81,7 +81,7 @@ void DownloadManager::networkReply(QNetworkReply * reply)
 			// Resolve full URL
 			redirect = reply->url().resolved(redirect);
 		}
-		qDebug() << "Redirect: " << redirect.toString();
+		qDebug() << "DownloadManager: Redirect: " << redirect.toString();
 
 		// Add new request immediately
 		// OR: Add to waiting queue with increased prio (in case some high prio job has come up)
@@ -130,7 +130,7 @@ void DownloadManager::pollQueue()
 		networkManager_->get(QNetworkRequest(QUrl(request->url)));
 		++stats_.numRequests;
 
-		qDebug() << "Requesting " << request->url;
+		qDebug() << "DownloadManager: Requesting " << request->url;
 	}
 }
 

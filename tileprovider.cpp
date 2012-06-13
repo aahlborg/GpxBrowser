@@ -9,35 +9,35 @@ static const int tileSize = 256;
 //Debug
 #include <QDebug>
 
-TileProvider::TileProvider(QString url, bool invertX, bool invertY, bool quadKey, QObject *parent) :
-	QObject(parent)
+TileProvider::TileProvider(TileProviderInfo &info) :
+	QObject(NULL)
 {
 	init();
 
-	providerUrl_ = url;
-	flipX_ = invertX;
-	flipY_ = invertY;
-	useQuadKey_ = quadKey;
+	// Copy TileProviderInfo
+	info_.name = info.name;
+	info_.copyright = info.copyright;
+	info_.url = info.url;
+	info_.serverList = QList<QString>(info.serverList);
+	info_.numConnections = info.numConnections;
+	info_.minZoom = info.minZoom;
+	info_.maxZoom = info.maxZoom;
+	info_.invertX = info.invertX;
+	info_.invertY = info.invertY;
+	info_.quadKey = info.quadKey;
+
+	downloadManager_->setMaxConcurentJobs(info_.numConnections);
 }
 
 void TileProvider::init()
 {
 	// Set default values
-	providerUrl_ = "";
-	serverNames_[0] = "";
-	nServers_ = 1;
-	tileServerCounter_ = 0;
-	nConnections_ = 2;
-	minZoom_ = 1;
-	maxZoom_ = 16;
-	flipX_ = false;
-	flipY_ = false;
-	useQuadKey_ = false;
+	info_ = EMPTY_TILE_PROVIDER_INFO;
 	stats_ = EMPTY_PROVIDER_STATS;
 	lastZoomLevel_ = 0;
+	tileServerCounter_ = 0;
 
 	downloadManager_ = new DownloadManager();
-	downloadManager_->setMaxConcurentJobs(nConnections_);
 	connect(downloadManager_, SIGNAL(finished(DownloadRequestObject*,QNetworkReply*)),
 			this, SLOT(downloadReply(DownloadRequestObject*,QNetworkReply*)));
 }
@@ -52,9 +52,9 @@ bool TileProvider::requestTile(int zoom, int x, int y)
 	QString tileURL = getTileURL(zoom, x, y);
 	//TileInfo tileParams = {zoom, x, y};
 
-	if (zoom < minZoom_ || zoom > maxZoom_)
+	if (zoom < info_.minZoom || zoom > info_.maxZoom)
 	{
-		qDebug() << "Error: Invalid zoom level: " << zoom;
+		qDebug() << "TileProvider: Error: Invalid zoom level: " << zoom;
 		return false;
 	}
 
@@ -77,14 +77,14 @@ bool TileProvider::requestTile(int zoom, int x, int y)
 
 	++stats_.numRequestedTiles;
 
-	qDebug() << "Requesting tile " << tileURL;
+	qDebug() << "TileProvider: Requesting tile " << tileURL;
 
 	return true;
 }
 
 void TileProvider::downloadReply(DownloadRequestObject * request, QNetworkReply * reply)
 {
-	qDebug() << "Reply for: " << request->url;
+	qDebug() << "TileProvider: Reply for: " << request->url;
 
 	stats_.numReceivedBytes += reply->bytesAvailable();
 
@@ -92,7 +92,7 @@ void TileProvider::downloadReply(DownloadRequestObject * request, QNetworkReply 
 	QImage tileImg;
 	if (!tileImg.load(reply, 0))
 	{
-		qDebug() << "Error creating image";
+		qDebug() << "TileProvider: Error creating image";
 		char data[200];
 		reply->read(data, 200);
 		qDebug() << QString(data);
@@ -111,63 +111,50 @@ void TileProvider::downloadReply(DownloadRequestObject * request, QNetworkReply 
 	++stats_.numProvidedTiles;
 }
 
-void TileProvider::setServerNames(QString names[], int numNames)
-{
-	if (numNames > 5)
-		numNames = 5;
-
-	for (int i = 0; i < numNames; ++i)
-	{
-		serverNames_[i] = names[i];
-	}
-
-	nServers_ = numNames;
-}
-
 void TileProvider::setZoomBounds(int minZoom, int maxZoom)
 {
-	minZoom_ = minZoom;
-	maxZoom_ = maxZoom;
+	info_.minZoom = minZoom;
+	info_.maxZoom = maxZoom;
 }
 
 void TileProvider::setAddressLookupOptions(bool invertX, bool invertY, bool quadKey)
 {
-	flipX_ = invertX;
-	flipY_ = invertY;
-	useQuadKey_ = quadKey;
+	info_.invertX = invertX;
+	info_.invertY = invertY;
+	info_.quadKey = quadKey;
 }
 
 void TileProvider::setMaxConcurrentRequests(int maxConnections)
 {
-	nConnections_ = maxConnections;
+	info_.numConnections = maxConnections;
 }
 
 int TileProvider::getMinZoom()
 {
-	return minZoom_;
+	return info_.minZoom;
 }
 
 int TileProvider::getMaxZoom()
 {
-	return maxZoom_;
+	return info_.maxZoom;
 }
 
 QString TileProvider::getTileURL(int zoom, int x, int y)
 {
 	// Flip x index
-	if (flipX_)
+	if (info_.invertX)
 	{
 		x = (0x1 << zoom) - x - 1;
 	}
 
 	// Flip y index
-	if (flipY_)
+	if (info_.invertY)
 	{
 		y = (0x1 << zoom) - y - 1;
 	}
 
 	// Quad key coding, used for Bing maps
-	if (useQuadKey_)
+	if (info_.quadKey)
 	{
 		QString quadKey;
 		for (int i = zoom; i > 0; i--)
@@ -186,10 +173,20 @@ QString TileProvider::getTileURL(int zoom, int x, int y)
 			quadKey.append(QString(digit));
 		}
 
-		return providerUrl_.arg(quadKey).arg(serverNames_[++tileServerCounter_ % nServers_]);
+		QString url = info_.url.arg(quadKey);
+		if (!info_.serverList.isEmpty())
+		{
+			url = url.arg(info_.serverList.at(tileServerCounter_++ % info_.serverList.size()));
+		}
+		return url;
 	}
 	else
 	{
-		return providerUrl_.arg(zoom).arg(x).arg(y).arg(serverNames_[++tileServerCounter_ % nServers_]);
+		QString url = info_.url.arg(zoom).arg(x).arg(y);
+		if (!info_.serverList.isEmpty())
+		{
+			url = url.arg(info_.serverList.at(tileServerCounter_++ % info_.serverList.size()));
+		}
+		return url;
 	}
 }

@@ -6,6 +6,8 @@
 #include <QImage>
 #include <QHash>
 
+typedef QHash<QString, QPixmap *> TileList;
+
 class TileManager : public QObject
 {
 	Q_OBJECT
@@ -35,7 +37,7 @@ private:
 	QPixmap * createTile(int zoom, int x, int y);
 	QString getKey(int zoom, int x, int y);
 
-	QHash<QString, QPixmap *> tiles_;
+	TileList tiles_;
 	TileProvider * tileProvider_;
 };
 
