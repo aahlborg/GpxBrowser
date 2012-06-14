@@ -17,7 +17,7 @@
 #define GPXTRACK_H
 
 #include "gpxroutebase.h"
-#include <vector>
+#include <QVector>
 #include "gpxpath.h"
 
 class QDomDocument;
@@ -28,11 +28,13 @@ class GPXTrack : public GPXRouteBase
 public:
 	GPXTrack();
 
+	const QVector<GPXPath> * getSegments() const { return &trackSegments_; }
+
 	// GPX XML output
 	void outputXml(QDomDocument &document, QDomElement &trackElement) const;
 
 private:
-	std::vector<GPXPath> trackSegments;
+	QVector<GPXPath> trackSegments_;
 };
 
 #endif // GPXTRACK_H

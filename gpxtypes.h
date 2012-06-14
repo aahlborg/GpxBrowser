@@ -2,7 +2,6 @@
 #define GPXTYPES_H
 
 #include <QtCore>
-#include <vector>
 
 typedef double Latitude;
 typedef double Longitude;

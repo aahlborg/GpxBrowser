@@ -5,7 +5,7 @@
 GPXTrack::GPXTrack()
 {
 	// DEBUG DATA
-	trackSegments.push_back(GPXPath());
+	trackSegments_.append(GPXPath());
 	// DEBUG DATA
 }
 
@@ -15,10 +15,10 @@ void GPXTrack::outputXml(QDomDocument &document, QDomElement &trackElement) cons
 	GPXRouteBase::outputXml(document, trackElement);
 
 	// Add track segments
-	for (uint i = 0; i < trackSegments.size(); ++i)
+	for (int i = 0; i < trackSegments_.size(); ++i)
 	{
 		QDomElement trksegElement = document.createElement("trkseg");
-		trackSegments.at(i).outputXml(document, trksegElement, "trkpt");
+		trackSegments_.at(i).outputXml(document, trksegElement, "trkpt");
 		trackElement.appendChild(trksegElement);
 	}
 }

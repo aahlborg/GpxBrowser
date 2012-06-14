@@ -4,6 +4,7 @@
 #include <QMainWindow>
 #include <QList>
 
+class GPXObject;
 class QAction;
 
 namespace Ui {
@@ -36,6 +37,8 @@ private:
 	QList<QAction *> tileProviderMenuItems_;
 
 	Ui::MainWindow *ui;
+
+	GPXObject * gpxObject_;
 };
 
 #endif // MAINWINDOW_H

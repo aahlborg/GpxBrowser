@@ -44,8 +44,8 @@ bool GPXWaypoint::setPosition(const double newLatitude, const double newLongitud
 {
 	if (GPXUtilities::validatePosition(newLatitude, newLongitude))
 	{
-		latitude = newLatitude;
-		longitude = newLongitude;
+		latitude_ = newLatitude;
+		longitude_ = newLongitude;
 		return true;
 	}
 	return false;
@@ -55,7 +55,7 @@ bool GPXWaypoint::setLatitude(const double newLatitude)
 {
 	if (GPXUtilities::validateLatitude(newLatitude))
 	{
-		latitude = newLatitude;
+		latitude_ = newLatitude;
 		return true;
 	}
 	return false;
@@ -65,7 +65,7 @@ bool GPXWaypoint::setLongitude(const double newLongitude)
 {
 	if (GPXUtilities::validateLongitude(newLongitude))
 	{
-		longitude = newLongitude;
+		longitude_ = newLongitude;
 		return true;
 	}
 	return false;
@@ -73,16 +73,16 @@ bool GPXWaypoint::setLongitude(const double newLongitude)
 
 void GPXWaypoint::addLink(const LinkType newLink)
 {
-	links.push_back(newLink);
-	haveLinks = true;
+	links_.append(newLink);
+	haveLinks_ = true;
 }
 
 void GPXWaypoint::removeLink(const int linkIndex)
 {
-	links.erase(links.begin() + linkIndex);
+	links_.erase(links_.begin() + linkIndex);
 
-	if (links.size() == 0)
-		haveLinks = false;
+	if (links_.size() == 0)
+		haveLinks_ = false;
 }
 
 double GPXWaypoint::distanceTo(const GPXWaypoint &otherWpt) const
@@ -116,72 +116,72 @@ double GPXWaypoint::speedTo(const GPXWaypoint &otherWpt) const
 void GPXWaypoint::outputXml(QDomDocument &document, QDomElement &wptElement) const
 {
 	// Add mandatory position attributes
-	wptElement.setAttribute("lat", latitude);
-	wptElement.setAttribute("lon", longitude);
+	wptElement.setAttribute("lat", latitude_);
+	wptElement.setAttribute("lon", longitude_);
 
 	// Add elevation element
-	if (haveElevation)
+	if (haveElevation_)
 	{
 		QDomElement eleElement = document.createElement("ele");
-		QDomText eleElementText = document.createTextNode(QString::number(elevation));
+		QDomText eleElementText = document.createTextNode(QString::number(elevation_));
 		eleElement.appendChild(eleElementText);
 		wptElement.appendChild(eleElement);
 	}
 
 	// Add time element
-	if (haveTime)
+	if (haveTime_)
 	{
 		QDomElement timeElement = document.createElement("time");
-		QDomText timeElementText = document.createTextNode(time.toString());
+		QDomText timeElementText = document.createTextNode(time_.toString());
 		timeElement.appendChild(timeElementText);
 		wptElement.appendChild(timeElement);
 	}
 
 	// Add name element
-	if (haveName)
+	if (haveName_)
 	{
 		QDomElement nameElement = document.createElement("name");
-		QDomText nameElementText = document.createTextNode(name);
+		QDomText nameElementText = document.createTextNode(name_);
 		nameElement.appendChild(nameElementText);
 		wptElement.appendChild(nameElement);
 	}
 
 	// Add cmt element
-	if (haveComment)
+	if (haveComment_)
 	{
 		QDomElement cmtElement = document.createElement("cmt");
-		QDomText cmtElementText = document.createTextNode(comment);
+		QDomText cmtElementText = document.createTextNode(comment_);
 		cmtElement.appendChild(cmtElementText);
 		wptElement.appendChild(cmtElement);
 	}
 
 	// Add desc element
-	if (haveDescription)
+	if (haveDescription_)
 	{
 		QDomElement descElement = document.createElement("desc");
-		QDomText descElementText = document.createTextNode(description);
+		QDomText descElementText = document.createTextNode(description_);
 		descElement.appendChild(descElementText);
 		wptElement.appendChild(descElement);
 	}
 
 	// Add link elements
-	if (haveLinks)
+	if (haveLinks_)
 	{
-		for (uint i = 0; i < links.size(); ++i)
+		for (int i = 0; i < links_.size(); ++i)
 		{
 			QDomElement linkElement = document.createElement("link");
-			linkElement.setAttribute("href", links[i].href);
-			if (links[i].hasText)
+			linkElement.setAttribute("href", links_[i].href);
+			if (links_[i].hasText)
 			{
 				QDomElement textElement = document.createElement("text");
-				QDomText textElementText = document.createTextNode(links[i].text);
+				QDomText textElementText = document.createTextNode(links_[i].text);
 				textElement.appendChild(textElementText);
 				linkElement.appendChild(textElement);
 			}
-			if (links[i].hasType)
+			if (links_[i].hasType)
 			{
 				QDomElement typeElement = document.createElement("type");
-				QDomText typeElementText = document.createTextNode(links[i].type);
+				QDomText typeElementText = document.createTextNode(links_[i].type);
 				typeElement.appendChild(typeElementText);
 				linkElement.appendChild(typeElement);
 			}

@@ -4,12 +4,14 @@
 //#include "tilemanager.h"
 #include <QWidget>
 #include <QList>
+#include <QVector>
 
 class TileManager;
 struct TileProviderInfo;
 
 typedef QList<TileProviderInfo *> TileProviderInfoList;
 typedef QList<TileManager *> TileManagerList;
+typedef QVector<QPointF> CoordinateList;
 
 class MapView : public QWidget
 {
@@ -21,6 +23,7 @@ public:
 	TileProviderInfoList * getTileProviders() { return &tileProviders_; }
 	void addTileProvider(TileProviderInfo &providerInfo);
 	void setActiveTileProvider(int index);
+	void setPath(QVector<QPointF> &path);
 	
 signals:
 	
@@ -49,6 +52,7 @@ private:
 	bool isActive();
 
 	void drawTiles(QPainter &painter);
+	void drawPath(QPainter &painter);
 
 	void moveMap(QPointF delta);
 
@@ -70,6 +74,9 @@ private:
 	TileProviderInfoList tileProviders_;
 	TileManagerList tileManagers_;
 	int activeTileProvider_;
+
+	// Paths and stuff
+	CoordinateList path_;
 };
 
 #endif // MAPVIEW_H

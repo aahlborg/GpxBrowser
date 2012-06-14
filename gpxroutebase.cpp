@@ -16,65 +16,65 @@ GPXRouteBase::GPXRouteBase()
 
 void GPXRouteBase::addLink(const LinkType newLink)
 {
-	links.push_back(newLink);
-	haveLinks = true;
+	links_.append(newLink);
+	haveLinks_ = true;
 }
 
 void GPXRouteBase::removeLink(const int linkIndex)
 {
-	links.erase(links.begin() + linkIndex);
+	links_.erase(links_.begin() + linkIndex);
 
-	if (links.size() == 0)
-		haveLinks = false;
+	if (links_.size() == 0)
+		haveLinks_ = false;
 }
 
 void GPXRouteBase::outputXml(QDomDocument &document, QDomElement &routeBaseElement) const
 {
 	// Add name element
-	if (haveName)
+	if (haveName_)
 	{
 		QDomElement nameElement = document.createElement("name");
-		QDomText nameElementText = document.createTextNode(name);
+		QDomText nameElementText = document.createTextNode(name_);
 		nameElement.appendChild(nameElementText);
 		routeBaseElement.appendChild(nameElement);
 	}
 
 	// Add cmt element
-	if (haveComment)
+	if (haveComment_)
 	{
 		QDomElement cmtElement = document.createElement("cmt");
-		QDomText cmtElementText = document.createTextNode(comment);
+		QDomText cmtElementText = document.createTextNode(comment_);
 		cmtElement.appendChild(cmtElementText);
 		routeBaseElement.appendChild(cmtElement);
 	}
 
 	// Add desc element
-	if (haveDescription)
+	if (haveDescription_)
 	{
 		QDomElement descElement = document.createElement("desc");
-		QDomText descElementText = document.createTextNode(description);
+		QDomText descElementText = document.createTextNode(description_);
 		descElement.appendChild(descElementText);
 		routeBaseElement.appendChild(descElement);
 	}
 
 	// Add link elements
-	if (haveLinks)
+	if (haveLinks_)
 	{
-		for (uint i = 0; i < links.size(); ++i)
+		for (int i = 0; i < links_.size(); ++i)
 		{
 			QDomElement linkElement = document.createElement("link");
-			linkElement.setAttribute("href", links[i].href);
-			if (links[i].hasText)
+			linkElement.setAttribute("href", links_[i].href);
+			if (links_[i].hasText)
 			{
 				QDomElement textElement = document.createElement("text");
-				QDomText textElementText = document.createTextNode(links[i].text);
+				QDomText textElementText = document.createTextNode(links_[i].text);
 				textElement.appendChild(textElementText);
 				linkElement.appendChild(textElement);
 			}
-			if (links[i].hasType)
+			if (links_[i].hasType)
 			{
 				QDomElement typeElement = document.createElement("type");
-				QDomText typeElementText = document.createTextNode(links[i].type);
+				QDomText typeElementText = document.createTextNode(links_[i].type);
 				typeElement.appendChild(typeElementText);
 				linkElement.appendChild(typeElement);
 			}

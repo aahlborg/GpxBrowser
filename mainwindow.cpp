@@ -14,6 +14,18 @@ MainWindow::MainWindow(QWidget *parent) :
 	ui->setupUi(this);
 
 	updateTileProviderList();
+
+	gpxObject_ = new GPXObject();
+	const QVector<GPXWaypoint> * waypoints = gpxObject_->getTracks()->at(0).getSegments()->at(0).getWaypoints();
+
+	QVector<QPointF> path;
+	for (int i = 0; i < waypoints->size(); ++i)
+	{
+		QPointF coord = QPointF(waypoints->at(i).getLongitude(), waypoints->at(i).getLatitude());
+		path.append(coord);
+	}
+	MapView * mapView = static_cast<MapView *>(ui->centralWidget);
+	mapView->setPath(path);
 }
 
 MainWindow::~MainWindow()
@@ -102,6 +114,11 @@ void MainWindow::updateTileProviderList()
 	for (int i = 0; i < tileProviders->size(); ++i)
 	{
 		QAction * newMenuItem = new QAction(tileProviders->at(i)->name, ui->menuMap);
+		// Set a shortcut, Ctrl+1-0
+		if (i < 10)
+		{
+			newMenuItem->setShortcut(QKeySequence(QString("Ctrl+%1").arg((i + 1) % 10)));
+		}
 		connect(newMenuItem, SIGNAL(triggered()), this, SLOT(on_actionTileProvider_triggered()));
 		tileProviderMenuItems_.append(newMenuItem);
 		ui->menuMap->addAction(newMenuItem);

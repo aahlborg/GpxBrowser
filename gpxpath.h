@@ -9,7 +9,7 @@
 #ifndef GPXPATH_H
 #define GPXPATH_H
 
-#include <vector>
+#include <QVector>
 #include "gpxwaypoint.h"
 
 class QDomDocument;
@@ -21,7 +21,7 @@ public:
 	GPXPath();
 
 	// Accessor methods for data members
-	const std::vector<GPXWaypoint> * getWaypoints() const { return &waypoints; }
+	const QVector<GPXWaypoint> * getWaypoints() const { return &waypoints_; }
 
 	// Modification methods
 	void concatenate(const GPXPath &otherPath);
@@ -40,7 +40,7 @@ public:
 	void outputXml(QDomDocument &document, QDomElement &pathElement, const QString nodeName) const;
 
 private:
-	std::vector<GPXWaypoint> waypoints;
+	QVector<GPXWaypoint> waypoints_;
 };
 
 #endif // GPXPATH_H

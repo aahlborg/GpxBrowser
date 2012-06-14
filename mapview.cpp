@@ -272,6 +272,18 @@ void MapView::setActiveTileProvider(int index)
 	update();
 }
 
+void MapView::setPath(QVector<QPointF> &path)
+{
+	path_.clear();
+
+	for (int i = 0; i < path.size(); ++i)
+	{
+		path_.append(path.at(i));
+	}
+
+	update();
+}
+
 void MapView::dataUpdated(TileManager * sender, int /*zoom*/, int /*x*/, int /*y*/)
 {
 	if (isActive() && sender == tileManagers_.at(activeTileProvider_))
@@ -288,6 +300,8 @@ void MapView::paintEvent(QPaintEvent * /*event*/)
 	QPainter painter(this);
 
 	drawTiles(painter);
+	drawPath(painter);
+
 	int rowCount = 0;
 
 	ProviderStatistics stats = tileManagers_.at(activeTileProvider_)->providerStats();
@@ -328,6 +342,33 @@ void MapView::drawTiles(QPainter &painter)
 			}
 		}
 	}
+}
+
+void MapView::drawPath(QPainter &painter)
+{
+	if (path_.size() < 2)
+	{
+		return;
+	}
+
+	// Convert points to canvas coordinates
+	QVector<QPointF> canvasPath;
+	for (int i = 0; i < path_.size(); ++i)
+	{
+		canvasPath.append(coordToCanvas(path_.at(i)));
+	}
+
+	// Construct lines
+	QVector<QLineF> pathLines;
+	for (int i = 0; i < canvasPath.size() - 1; ++i)
+	{
+		pathLines.append(QLineF(canvasPath.at(i), canvasPath.at(i + 1)));
+	}
+
+	painter.save();
+	painter.setPen(QPen(QBrush(Qt::red), 2));
+	painter.drawLines(pathLines);
+	painter.restore();
 }
 
 void MapView::moveMap(QPointF delta)

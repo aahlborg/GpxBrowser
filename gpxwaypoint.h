@@ -14,7 +14,7 @@
 #ifndef GPXWAYPOINT_H
 #define GPXWAYPOINT_H
 
-#include <vector>
+#include <QVector>
 #include "gpxtypes.h"
 #include "gpxdatetime.h"
 
@@ -22,8 +22,8 @@ class QDomDocument;
 class QDomElement;
 
 #define CLEAR_OPT(varname, camelname, defaultval) void clear ## camelname() { \
-	have ## camelname = false; \
-	varname = defaultval; \
+	have ## camelname ## _ = false; \
+	varname ## _ = defaultval; \
 	}
 
 class GPXWaypoint
@@ -33,22 +33,22 @@ public:
 	explicit GPXWaypoint(const double newLatitude, const double newLongitude);
 
 	// Accessor methods for data members
-	double getLatitude() const { return latitude; }
-	double getLongitude() const { return longitude; }
-	double getElevation() const { return elevation; }
-	const GPXDateTime getTime() const { return time; }
-	const QString getName() const { return name; }
-	const QString getComment() const { return comment; }
-	const QString getDescription() const { return description; }
-	const std::vector<LinkType> * getLinks() { return &links; }
+	double getLatitude() const { return latitude_; }
+	double getLongitude() const { return longitude_; }
+	double getElevation() const { return elevation_; }
+	const GPXDateTime getTime() const { return time_; }
+	const QString getName() const { return name_; }
+	const QString getComment() const { return comment_; }
+	const QString getDescription() const { return description_; }
+	const QVector<LinkType> * getLinks() { return &links_; }
 
 	// Functions informing which optional data are included
-	bool hasElevation() const { return haveElevation; }
-	bool hasTime() const { return haveTime; }
-	bool hasName() const { return haveName; }
-	bool hasComment() const { return haveComment; }
-	bool hasDescription() const { return haveDescription; }
-	bool hasLinks() const { return haveLinks; }
+	bool hasElevation() const { return haveElevation_; }
+	bool hasTime() const { return haveTime_; }
+	bool hasName() const { return haveName_; }
+	bool hasComment() const { return haveComment_; }
+	bool hasDescription() const { return haveDescription_; }
+	bool hasLinks() const { return haveLinks_; }
 
 	// Functions for clearing optional fields
 	CLEAR_OPT(elevation, Elevation, 0.0)
@@ -56,7 +56,7 @@ public:
 	CLEAR_OPT(name, Name, "")
 	CLEAR_OPT(comment, Comment, "")
 	CLEAR_OPT(description, Description, "")
-	void clearLinks() { links.clear(); haveLinks = false; }
+	void clearLinks() { links_.clear(); haveLinks_ = false; }
 
 	// Set position
 	bool setPosition(const double newLatitude, const double newLongitude);
@@ -64,11 +64,11 @@ public:
 	bool setLongitude(const double newLongitude);
 
 	// Set optional fields
-	void setElevation(const double newElevation) { elevation = newElevation; haveElevation = true; }
-	void setTime(const GPXDateTime newTime) { time = newTime; haveTime = true; }
-	void setName(const QString newName) { name = newName; haveName = true; }
-	void setComment(const QString newComment) { comment = newComment; haveComment = true; }
-	void setDescription(const QString newDescription) { description = newDescription; haveDescription = true; }
+	void setElevation(const double newElevation) { elevation_ = newElevation; haveElevation_ = true; }
+	void setTime(const GPXDateTime newTime) { time_ = newTime; haveTime_ = true; }
+	void setName(const QString newName) { name_ = newName; haveName_ = true; }
+	void setComment(const QString newComment) { comment_ = newComment; haveComment_ = true; }
+	void setDescription(const QString newDescription) { description_ = newDescription; haveDescription_ = true; }
 	void addLink(const LinkType newLink);
 	void removeLink(const int linkIndex);
 
@@ -84,24 +84,24 @@ public:
 
 private:
 	// Position data
-	double latitude;
-	double longitude;
+	double latitude_;
+	double longitude_;
 
 	// Optional data
-	double elevation;
-	GPXDateTime time;
-	QString name;
-	QString comment;
-	QString description;
-	std::vector<LinkType> links;
+	double elevation_;
+	GPXDateTime time_;
+	QString name_;
+	QString comment_;
+	QString description_;
+	QVector<LinkType> links_;
 
 	// Information about included optional data
-	bool haveElevation;
-	bool haveTime;
-	bool haveName;
-	bool haveComment;
-	bool haveDescription;
-	bool haveLinks;
+	bool haveElevation_;
+	bool haveTime_;
+	bool haveName_;
+	bool haveComment_;
+	bool haveDescription_;
+	bool haveLinks_;
 };
 
 #endif // GPXWAYPOINT_H

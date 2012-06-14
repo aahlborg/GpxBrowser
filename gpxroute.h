@@ -29,7 +29,7 @@ public:
 	void outputXml(QDomDocument &document, QDomElement &routeElement) const;
 
 private:
-	GPXPath path;
+	GPXPath path_;
 };
 
 #endif // GPXROUTE_H

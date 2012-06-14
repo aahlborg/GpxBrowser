@@ -10,5 +10,5 @@ void GPXRoute::outputXml(QDomDocument &document, QDomElement &routeElement) cons
 	GPXRouteBase::outputXml(document, routeElement);
 
 	// Add route path
-	path.outputXml(document, routeElement, "rtept");
+	path_.outputXml(document, routeElement, "rtept");
 }

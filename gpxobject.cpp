@@ -10,9 +10,9 @@ GPXObject::GPXObject(QObject *parent) :
 	setCreator("GPXlib Alpha - https://bitbucket.org/aahlborg/gpxbrowser");
 
 	// DEBUG DATA
-	waypoints.push_back(GPXWaypoint());
-	routes.push_back(GPXRoute());
-	tracks.push_back(GPXTrack());
+	waypoints_.append(GPXWaypoint());
+	routes_.append(GPXRoute());
+	tracks_.append(GPXTrack());
 	// DEBUG DATA
 }
 
@@ -28,36 +28,36 @@ void GPXObject::saveToFile(QIODevice * file) const
 	gpx.setAttribute("xmlns", "http://www.topografix.com/GPX/1/1");
 	gpx.setAttribute("xmlns:xalan", "http://xml.apache.org/xalan");
 	gpx.setAttribute("xmlns:xsi", "http://www.w3.org/2001/XMLSchema-instance");
-	gpx.setAttribute("version", version);
-	gpx.setAttribute("creator", creator);
+	gpx.setAttribute("version", version_);
+	gpx.setAttribute("creator", creator_);
 	doc.appendChild(gpx);
 
 	// Metadata
 	QDomElement metadataElement = doc.createElement("metadata");
-	metadata.outputXml(doc, metadataElement);
+	metadata_.outputXml(doc, metadataElement);
 	gpx.appendChild(metadataElement);
 
 	// Waypoints
-	for (uint i = 0; i < waypoints.size(); ++i)
+	for (int i = 0; i < waypoints_.size(); ++i)
 	{
 		QDomElement wptElement = doc.createElement("wpt");
-		waypoints.at(i).outputXml(doc, wptElement);
+		waypoints_.at(i).outputXml(doc, wptElement);
 		gpx.appendChild(wptElement);
 	}
 
 	// Routes
-	for (uint i = 0; i < routes.size(); ++i)
+	for (int i = 0; i < routes_.size(); ++i)
 	{
 		QDomElement rteElement = doc.createElement("rte");
-		routes.at(i).outputXml(doc, rteElement);
+		routes_.at(i).outputXml(doc, rteElement);
 		gpx.appendChild(rteElement);
 	}
 
 	// Tracks
-	for (uint i = 0; i < tracks.size(); ++i)
+	for (int i = 0; i < tracks_.size(); ++i)
 	{
 		QDomElement trkElement = doc.createElement("trk");
-		tracks.at(i).outputXml(doc, trkElement);
+		tracks_.at(i).outputXml(doc, trkElement);
 		gpx.appendChild(trkElement);
 	}
 

@@ -13,7 +13,7 @@
 #define GPXOBJECT_H
 
 #include <QObject>
-#include <vector>
+#include <QVector>
 #include "gpxtypes.h"
 #include "gpxroute.h"
 #include "gpxtrack.h"
@@ -27,12 +27,12 @@ public:
 	explicit GPXObject(QObject *parent = 0);
 
 	// Accessor methods
-	QString getVersion() const { return version; }
-	QString getCreator() const { return creator; }
-	GPXMetadata * getMetadata() { return &metadata; } // const?
-	std::vector<GPXRoute> * getRoutes() { return &routes; } // const?
-	std::vector<GPXTrack> * getTracks() { return &tracks; } // const?
-	std::vector<GPXWaypoint> * getWaypoints() { return &waypoints; } // const?
+	QString getVersion() const { return version_; }
+	QString getCreator() const { return creator_; }
+	GPXMetadata * getMetadata() { return &metadata_; } // const?
+	QVector<GPXRoute> * getRoutes() { return &routes_; } // const?
+	QVector<GPXTrack> * getTracks() { return &tracks_; } // const?
+	QVector<GPXWaypoint> * getWaypoints() { return &waypoints_; } // const?
 
 	// Load/save methods
 	void saveToFile(QIODevice *file) const;
@@ -46,20 +46,20 @@ public:
 protected:
 	// These fields are related to the syntax of the saved GPX file
 	// and should not be modifiable by the user
-	void setVersion(QString newVersion) { version = newVersion; }
-	void setCreator(QString newCreator) { creator = newCreator; }
+	void setVersion(QString newVersion) { version_ = newVersion; }
+	void setCreator(QString newCreator) { creator_ = newCreator; }
 
 signals:
 	
 public slots:
 	
 private:
-	QString version;
-	QString creator;
-	GPXMetadata metadata;
-	std::vector<GPXRoute> routes;
-	std::vector<GPXTrack> tracks;
-	std::vector<GPXWaypoint> waypoints;
+	QString version_;
+	QString creator_;
+	GPXMetadata metadata_;
+	QVector<GPXRoute> routes_;
+	QVector<GPXTrack> tracks_;
+	QVector<GPXWaypoint> waypoints_;
 };
 
 #endif // GPXOBJECT_H

@@ -14,8 +14,8 @@ GPXPath::GPXPath()
 
 void GPXPath::concatenate(const GPXPath &otherPath)
 {
-	const std::vector<GPXWaypoint> *otherWpts = otherPath.getWaypoints();
-	for (uint i = 0; i < otherWpts->size(); ++i)
+	const QVector<GPXWaypoint> *otherWpts = otherPath.getWaypoints();
+	for (int i = 0; i < otherWpts->size(); ++i)
 	{
 		this->concatenate(otherWpts->at(i));
 	}
@@ -23,7 +23,7 @@ void GPXPath::concatenate(const GPXPath &otherPath)
 
 void GPXPath::concatenate(const GPXWaypoint &newWpt)
 {
-	waypoints.push_back(newWpt); // Maybe want to copy newWpt?
+	waypoints_.append(newWpt); // Maybe want to copy newWpt?
 }
 
 GPXPath GPXPath::subPath(const int start, const int end) const
@@ -33,7 +33,7 @@ GPXPath GPXPath::subPath(const int start, const int end) const
 	// From start up to and including end
 	for (int i = start; i <= end; ++i)
 	{
-		newPath.concatenate(waypoints.at(i));
+		newPath.concatenate(waypoints_.at(i));
 	}
 
 	return newPath;
@@ -41,7 +41,7 @@ GPXPath GPXPath::subPath(const int start, const int end) const
 
 GPXWaypoint GPXPath::closestWaypoint(const GPXWaypoint &otherWpt) const
 {
-	return waypoints[closestWaypointIndex(otherWpt)];
+	return waypoints_[closestWaypointIndex(otherWpt)];
 }
 
 int GPXPath::closestWaypointIndex(const GPXWaypoint &otherWpt) const
@@ -49,9 +49,9 @@ int GPXPath::closestWaypointIndex(const GPXWaypoint &otherWpt) const
 	double shortestDistance = DBL_MAX;
 	int iClosest = -1;
 
-	for (uint i = 0; i < waypoints.size(); ++i)
+	for (int i = 0; i < waypoints_.size(); ++i)
 	{
-		double distance = waypoints.at(i).distanceTo(otherWpt);
+		double distance = waypoints_.at(i).distanceTo(otherWpt);
 		if (distance < shortestDistance)
 		{
 			shortestDistance = distance;
@@ -66,9 +66,9 @@ double GPXPath::length() const
 {
 	double length = 0;
 
-	for (uint i = 0; i < waypoints.size() - 1; ++i)
+	for (int i = 0; i < waypoints_.size() - 1; ++i)
 	{
-		length += waypoints.at(i).distanceTo(waypoints[i + 1]);
+		length += waypoints_.at(i).distanceTo(waypoints_[i + 1]);
 	}
 
 	return length;
@@ -77,15 +77,15 @@ double GPXPath::length() const
 double GPXPath::duration() const
 {
 	// Time from first to last waypoint
-	return waypoints.at(0).getTime().msecsTo(waypoints.at(waypoints.size() - 1).getTime()) / 1000.0;
+	return waypoints_.at(0).getTime().msecsTo(waypoints_.at(waypoints_.size() - 1).getTime()) / 1000.0;
 }
 
 void GPXPath::outputXml(QDomDocument &document, QDomElement &pathElement, const QString nodeName) const
 {
-	for (uint i = 0; i < waypoints.size(); ++i)
+	for (int i = 0; i < waypoints_.size(); ++i)
 	{
 		QDomElement wptElement = document.createElement(nodeName);
-		waypoints.at(i).outputXml(document, wptElement);
+		waypoints_.at(i).outputXml(document, wptElement);
 		pathElement.appendChild(wptElement);
 	}
 }
