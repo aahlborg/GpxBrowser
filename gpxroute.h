@@ -25,6 +25,8 @@ class GPXRoute : public GPXRouteBase
 public:
 	GPXRoute();
 
+	GPXPath & getPath() { return path_; }
+
 	// GPX XML output
 	void outputXml(QDomDocument &document, QDomElement &routeElement) const;
 

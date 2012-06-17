@@ -16,16 +16,38 @@ MainWindow::MainWindow(QWidget *parent) :
 	updateTileProviderList();
 
 	gpxObject_ = new GPXObject();
-	const QVector<GPXWaypoint> * waypoints = gpxObject_->getTracks()->at(0).getSegments()->at(0).getWaypoints();
-
-	QVector<QPointF> path;
-	for (int i = 0; i < waypoints->size(); ++i)
-	{
-		QPointF coord = QPointF(waypoints->at(i).getLongitude(), waypoints->at(i).getLatitude());
-		path.append(coord);
-	}
 	MapView * mapView = static_cast<MapView *>(ui->centralWidget);
-	mapView->setPath(path);
+	mapView->clearPaths();
+	for (int i = 0; i < gpxObject_->getTracks()->size(); ++i)
+	{
+		GPXTrack track = gpxObject_->getTracks()->at(i);
+		for (int j = 0; j < track.getSegments()->size(); ++j)
+		{
+			GPXPath trkSeg = track.getSegments()->at(j);
+			const QVector<GPXWaypoint> * waypoints = trkSeg.getWaypoints();
+
+			QVector<QPointF> path;
+			for (int i = 0; i < waypoints->size(); ++i)
+			{
+				QPointF coord = QPointF(waypoints->at(i).getLongitude(), waypoints->at(i).getLatitude());
+				path.append(coord);
+			}
+			mapView->addPath(path);
+		}
+	}
+	for (int i = 0; i < gpxObject_->getRoutes()->size();++i)
+	{
+		GPXRoute route = gpxObject_->getRoutes()->at(i);
+		const QVector<GPXWaypoint> * waypoints = route.getPath().getWaypoints();
+
+		QVector<QPointF> path;
+		for (int i = 0; i < waypoints->size(); ++i)
+		{
+			QPointF coord = QPointF(waypoints->at(i).getLongitude(), waypoints->at(i).getLatitude());
+			path.append(coord);
+		}
+		mapView->addPath(path);
+	}
 }
 
 MainWindow::~MainWindow()
@@ -96,6 +118,13 @@ void MainWindow::on_actionTileProvider_triggered()
 	MapView * mapView = static_cast<MapView *>(ui->centralWidget);
 	mapView->setActiveTileProvider(tileProviderIndex);
 
+	// Check active provider only
+	for (int i = 0; i < tileProviderMenuItems_.size(); ++i)
+	{
+		tileProviderMenuItems_.at(i)->setChecked(false);
+	}
+	tileProviderMenuItems_.at(tileProviderIndex)->setChecked(true);
+
 	// Debug
 	TileProviderInfoList * tileProviders = mapView->getTileProviders();
 	qDebug() << "MainWindow: Tile provider " << tileProviders->at(tileProviderIndex)->name << " selected";
@@ -118,6 +147,12 @@ void MainWindow::updateTileProviderList()
 		if (i < 10)
 		{
 			newMenuItem->setShortcut(QKeySequence(QString("Ctrl+%1").arg((i + 1) % 10)));
+		}
+		// Select active provider
+		newMenuItem->setCheckable(true);
+		if (mapView->activeTileProvider() == i)
+		{
+			newMenuItem->setChecked(true);
 		}
 		connect(newMenuItem, SIGNAL(triggered()), this, SLOT(on_actionTileProvider_triggered()));
 		tileProviderMenuItems_.append(newMenuItem);

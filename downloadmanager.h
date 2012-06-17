@@ -62,6 +62,8 @@ private:
 	int maxConcurentJobs_;
 	// Timeout in milliseconds
 	int timeout_;
+	// User-agent in requests
+	QByteArray userAgent_;
 	//QList<DownloadRequestObject *> waitingQueue;
 	//QList<DownloadRequestObject *> pendingQueue;
 	DownloadQueue waitingQueue_;

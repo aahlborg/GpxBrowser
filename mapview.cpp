@@ -272,14 +272,22 @@ void MapView::setActiveTileProvider(int index)
 	update();
 }
 
-void MapView::setPath(QVector<QPointF> &path)
+void MapView::clearPaths()
 {
-	path_.clear();
+	qDeleteAll(paths_);
+	paths_.clear();
+}
+
+void MapView::addPath(QVector<QPointF> &path)
+{
+	CoordinateList * newPath = new CoordinateList();
 
 	for (int i = 0; i < path.size(); ++i)
 	{
-		path_.append(path.at(i));
+		newPath->append(path.at(i));
 	}
+
+	paths_.append(newPath);
 
 	update();
 }
@@ -300,7 +308,7 @@ void MapView::paintEvent(QPaintEvent * /*event*/)
 	QPainter painter(this);
 
 	drawTiles(painter);
-	drawPath(painter);
+	drawPaths(painter);
 
 	int rowCount = 0;
 
@@ -344,18 +352,26 @@ void MapView::drawTiles(QPainter &painter)
 	}
 }
 
-void MapView::drawPath(QPainter &painter)
+void MapView::drawPaths(QPainter &painter)
 {
-	if (path_.size() < 2)
+	for (int i = 0; i < paths_.size(); ++i)
+	{
+		drawPath(painter, *(paths_.at(i)));
+	}
+}
+
+void MapView::drawPath(QPainter &painter, CoordinateList &path)
+{
+	if (path.size() < 2)
 	{
 		return;
 	}
 
 	// Convert points to canvas coordinates
 	QVector<QPointF> canvasPath;
-	for (int i = 0; i < path_.size(); ++i)
+	for (int i = 0; i < path.size(); ++i)
 	{
-		canvasPath.append(coordToCanvas(path_.at(i)));
+		canvasPath.append(coordToCanvas(path.at(i)));
 	}
 
 	// Construct lines

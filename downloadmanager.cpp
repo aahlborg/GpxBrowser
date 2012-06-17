@@ -9,7 +9,8 @@
 DownloadManager::DownloadManager(QObject *parent) :
 	QObject(parent),
 	maxConcurentJobs_(8),
-	timeout_(10000)
+	timeout_(10000),
+	userAgent_("GpxBrowser 0.1 (Dev Alpha) gpxbrowser@aahlborg.se")
 {
 	networkManager_ = new QNetworkAccessManager();
 	connect(networkManager_, SIGNAL(finished(QNetworkReply*)), this, SLOT(networkReply(QNetworkReply*)));
@@ -87,7 +88,9 @@ void DownloadManager::networkReply(QNetworkReply * reply)
 		// OR: Add to waiting queue with increased prio (in case some high prio job has come up)
 		//     This would require changing the url of the request object
 		pendingQueue_.insert(redirect.toString(), request);
-		networkManager_->get(QNetworkRequest(redirect));
+		QNetworkRequest networkRequest(redirect);
+		networkRequest.setRawHeader("User-Agent", userAgent_);
+		networkManager_->get(networkRequest);
 		++stats_.numRedirects;
 
 		// Schedule deletion of reply
@@ -127,7 +130,9 @@ void DownloadManager::pollQueue()
 		DownloadRequestObject * request = nextJob();
 		pendingQueue_.insert(request->url, request);
 
-		networkManager_->get(QNetworkRequest(QUrl(request->url)));
+		QNetworkRequest networkRequest(QUrl(request->url));
+		networkRequest.setRawHeader("User-Agent", userAgent_);
+		networkManager_->get(networkRequest);
 		++stats_.numRequests;
 
 		qDebug() << "DownloadManager: Requesting " << request->url;

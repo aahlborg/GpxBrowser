@@ -23,7 +23,10 @@ public:
 	TileProviderInfoList * getTileProviders() { return &tileProviders_; }
 	void addTileProvider(TileProviderInfo &providerInfo);
 	void setActiveTileProvider(int index);
-	void setPath(QVector<QPointF> &path);
+	void clearPaths();
+	void addPath(QVector<QPointF> &path);
+
+	int activeTileProvider() { return activeTileProvider_; }
 	
 signals:
 	
@@ -52,7 +55,8 @@ private:
 	bool isActive();
 
 	void drawTiles(QPainter &painter);
-	void drawPath(QPainter &painter);
+	void drawPaths(QPainter &painter);
+	void drawPath(QPainter &painter, CoordinateList &path);
 
 	void moveMap(QPointF delta);
 
@@ -76,7 +80,7 @@ private:
 	int activeTileProvider_;
 
 	// Paths and stuff
-	CoordinateList path_;
+	QVector<CoordinateList *> paths_;
 };
 
 #endif // MAPVIEW_H
