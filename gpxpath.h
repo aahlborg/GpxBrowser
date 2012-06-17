@@ -38,6 +38,7 @@ public:
 
 	// GPX XML output
 	void outputXml(QDomDocument &document, QDomElement &pathElement, const QString nodeName) const;
+	void readXml(QDomElement &pathElement);
 
 private:
 	QVector<GPXWaypoint> waypoints_;

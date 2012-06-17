@@ -20,6 +20,18 @@
 #include "gpxwaypoint.h"
 #include "gpxmetadata.h"
 
+// GPX versions
+enum GpxVersion
+{
+	GPX_INVALID_VERSION,
+	GPX_1_0,
+	GPX_1_1
+};
+
+// GPX version strings
+#define GPX_1_0_STR "1.0"
+#define GPX_1_1_STR "1.1"
+
 class GPXObject : public QObject
 {
 	Q_OBJECT
@@ -27,7 +39,7 @@ public:
 	explicit GPXObject(QObject *parent = 0);
 
 	// Accessor methods
-	QString getVersion() const { return version_; }
+	GpxVersion getVersion() const { return version_; }
 	QString getCreator() const { return creator_; }
 	GPXMetadata * getMetadata() { return &metadata_; } // const?
 	QVector<GPXRoute> * getRoutes() { return &routes_; } // const?
@@ -36,17 +48,17 @@ public:
 
 	// Load/save methods
 	void saveToFile(QIODevice *file) const;
-	static GPXObject * loadFromFile(const QString fileName);
+	static GPXObject * loadFromFile(QIODevice *file);
 
 	// Import/export other formats
-	void exportKML(const QString fileName) const;
-	static GPXObject * importKML(QString fileName);
-	void exportCSV(const QString fileName) const;
+	void exportKML(const QIODevice *file) const;
+	static GPXObject * importKML(const QIODevice * file);
+	void exportCSV(const QIODevice *file) const;
 
 protected:
 	// These fields are related to the syntax of the saved GPX file
 	// and should not be modifiable by the user
-	void setVersion(QString newVersion) { version_ = newVersion; }
+	void setVersion(GpxVersion newVersion) { version_ = newVersion; }
 	void setCreator(QString newCreator) { creator_ = newCreator; }
 
 signals:
@@ -54,7 +66,11 @@ signals:
 public slots:
 	
 private:
-	QString version_;
+	static GpxVersion getVersionFromString(QString versionStr);
+
+	QString getVersionString() const;
+
+	GpxVersion version_;
 	QString creator_;
 	GPXMetadata metadata_;
 	QVector<GPXRoute> routes_;

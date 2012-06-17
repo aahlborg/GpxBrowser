@@ -81,6 +81,7 @@ public:
 
 	// GPX XML output
 	void outputXml(QDomDocument &document, QDomElement &wptElement) const;
+	void readXml(QDomElement &wptElement);
 
 private:
 	// Position data

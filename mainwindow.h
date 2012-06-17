@@ -34,6 +34,8 @@ private slots:
 
 private:
 	void updateTileProviderList();
+	void updatePathsToDraw();
+
 	QList<QAction *> tileProviderMenuItems_;
 
 	Ui::MainWindow *ui;

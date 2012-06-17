@@ -65,6 +65,7 @@ public:
 
 	// GPX XML output
 	void outputXml(QDomDocument &document, QDomElement &metadataElement) const;
+	void readXml(QDomElement &metadataElement);
 
 private:
 	// Optional data

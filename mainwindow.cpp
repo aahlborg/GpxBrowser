@@ -16,38 +16,7 @@ MainWindow::MainWindow(QWidget *parent) :
 	updateTileProviderList();
 
 	gpxObject_ = new GPXObject();
-	MapView * mapView = static_cast<MapView *>(ui->centralWidget);
-	mapView->clearPaths();
-	for (int i = 0; i < gpxObject_->getTracks()->size(); ++i)
-	{
-		GPXTrack track = gpxObject_->getTracks()->at(i);
-		for (int j = 0; j < track.getSegments()->size(); ++j)
-		{
-			GPXPath trkSeg = track.getSegments()->at(j);
-			const QVector<GPXWaypoint> * waypoints = trkSeg.getWaypoints();
-
-			QVector<QPointF> path;
-			for (int i = 0; i < waypoints->size(); ++i)
-			{
-				QPointF coord = QPointF(waypoints->at(i).getLongitude(), waypoints->at(i).getLatitude());
-				path.append(coord);
-			}
-			mapView->addPath(path);
-		}
-	}
-	for (int i = 0; i < gpxObject_->getRoutes()->size();++i)
-	{
-		GPXRoute route = gpxObject_->getRoutes()->at(i);
-		const QVector<GPXWaypoint> * waypoints = route.getPath().getWaypoints();
-
-		QVector<QPointF> path;
-		for (int i = 0; i < waypoints->size(); ++i)
-		{
-			QPointF coord = QPointF(waypoints->at(i).getLongitude(), waypoints->at(i).getLatitude());
-			path.append(coord);
-		}
-		mapView->addPath(path);
-	}
+	updatePathsToDraw();
 }
 
 MainWindow::~MainWindow()
@@ -78,6 +47,26 @@ void MainWindow::on_action_Quit_triggered()
 void MainWindow::on_actionOpen_triggered()
 {
 	qDebug() << "Open selected";
+
+	// Select file to open
+	QString fileName = QFileDialog::getOpenFileName(this, "Open file");
+	QFile file(fileName);
+
+	// Open file
+	if (file.open(QFile::ReadOnly | QFile::Text))
+	{
+		GPXObject * gpxObject = GPXObject::loadFromFile(&file);
+		file.close();
+
+		// Replace GPX object
+		delete gpxObject_;
+		gpxObject_ = gpxObject;
+		updatePathsToDraw();
+	}
+	else
+	{
+		qDebug() << "MainWindow: Open file " << fileName << " failed!";
+	}
 }
 
 void MainWindow::on_actionSave_As_triggered()
@@ -157,5 +146,44 @@ void MainWindow::updateTileProviderList()
 		connect(newMenuItem, SIGNAL(triggered()), this, SLOT(on_actionTileProvider_triggered()));
 		tileProviderMenuItems_.append(newMenuItem);
 		ui->menuMap->addAction(newMenuItem);
+	}
+}
+
+void MainWindow::updatePathsToDraw()
+{
+	MapView * mapView = static_cast<MapView *>(ui->centralWidget);
+	mapView->clearPaths();
+	for (int i = 0; i < gpxObject_->getTracks()->size(); ++i)
+	{
+		qDebug() << "MainWindow: Found track";
+		GPXTrack track = gpxObject_->getTracks()->at(i);
+		for (int j = 0; j < track.getSegments()->size(); ++j)
+		{
+			qDebug() << "MainWindow: Found track segment";
+			GPXPath trkSeg = track.getSegments()->at(j);
+			const QVector<GPXWaypoint> * waypoints = trkSeg.getWaypoints();
+
+			QVector<QPointF> path;
+			for (int i = 0; i < waypoints->size(); ++i)
+			{
+				QPointF coord = QPointF(waypoints->at(i).getLongitude(), waypoints->at(i).getLatitude());
+				path.append(coord);
+			}
+			mapView->addPath(path);
+		}
+	}
+	for (int i = 0; i < gpxObject_->getRoutes()->size();++i)
+	{
+		qDebug() << "MainWindow: Found route";
+		GPXRoute route = gpxObject_->getRoutes()->at(i);
+		const QVector<GPXWaypoint> * waypoints = route.getPath().getWaypoints();
+
+		QVector<QPointF> path;
+		for (int i = 0; i < waypoints->size(); ++i)
+		{
+			QPointF coord = QPointF(waypoints->at(i).getLongitude(), waypoints->at(i).getLatitude());
+			path.append(coord);
+		}
+		mapView->addPath(path);
 	}
 }

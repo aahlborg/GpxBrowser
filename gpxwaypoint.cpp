@@ -15,7 +15,7 @@ GPXWaypoint::GPXWaypoint()
 	clearLinks();
 
 	// DEBUG DATA
-	setPosition(58.34824, 18.23421);
+	/*setPosition(58.34824, 18.23421);
 	setElevation(23);
 	setTime(GPXDateTime::fromString("2012-04-22T21:23:23Z"));
 	setName("Testpunkt");
@@ -25,7 +25,7 @@ GPXWaypoint::GPXWaypoint()
 	link.href = "http://www.google.com";
 	link.text = "Search and thou shall find";
 	link.hasText = true;
-	addLink(link);
+	addLink(link);*/
 	// DEBUG DATA
 }
 
@@ -188,4 +188,21 @@ void GPXWaypoint::outputXml(QDomDocument &document, QDomElement &wptElement) con
 			wptElement.appendChild(linkElement);
 		}
 	}
+}
+
+void GPXWaypoint::readXml(QDomElement &wptElement)
+{
+	if (!wptElement.hasAttribute("lat") ||
+		!wptElement.hasAttribute("lon"))
+	{
+		qDebug() << "GPXWaypoint: Error: Node does not contain both lat and lon";
+		return;
+	}
+
+	latitude_ = wptElement.attribute("lat").toDouble();
+	longitude_ = wptElement.attribute("lon").toDouble();
+
+	//qDebug() << "GPXWaypoint: Lat: " << latitude_ << "  Lon: " << longitude_;
+
+	// TODO: Read other data
 }

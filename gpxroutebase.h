@@ -60,6 +60,7 @@ public:
 
 	// GPX XML output
 	void outputXml(QDomDocument &document, QDomElement &routeBaseElement) const;
+	void readXml(QDomElement &routeBaseElement);
 
 private:
 	QString name_;

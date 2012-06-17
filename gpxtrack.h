@@ -32,6 +32,7 @@ public:
 
 	// GPX XML output
 	void outputXml(QDomDocument &document, QDomElement &trackElement) const;
+	void readXml(QDomElement &trackElement);
 
 private:
 	QVector<GPXPath> trackSegments_;

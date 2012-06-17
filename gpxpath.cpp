@@ -6,9 +6,9 @@
 GPXPath::GPXPath()
 {
 	// DEBUG DATA
-	concatenate(GPXWaypoint(57.720829072, 11.941928406));
-	concatenate(GPXWaypoint(57.720877325, 11.942108352));
-	concatenate(GPXWaypoint(57.720890608, 11.942267466));
+	//concatenate(GPXWaypoint(57.720829072, 11.941928406));
+	//concatenate(GPXWaypoint(57.720877325, 11.942108352));
+	//concatenate(GPXWaypoint(57.720890608, 11.942267466));
 	// DEBUG DATA
 }
 
@@ -87,5 +87,21 @@ void GPXPath::outputXml(QDomDocument &document, QDomElement &pathElement, const 
 		QDomElement wptElement = document.createElement(nodeName);
 		waypoints_.at(i).outputXml(document, wptElement);
 		pathElement.appendChild(wptElement);
+	}
+}
+
+void GPXPath::readXml(QDomElement &pathElement)
+{
+	for (int i = 0; i < pathElement.childNodes().count(); ++i)
+	{
+		QDomElement child = pathElement.childNodes().item(i).toElement();
+		if (child.nodeName() == "trkpt" ||
+			child.nodeName() == "rtept")
+		{
+			//qDebug() << "GPXPath: Found waypoint node";
+			GPXWaypoint wpt;
+			wpt.readXml(child);
+			waypoints_.append(wpt);
+		}
 	}
 }

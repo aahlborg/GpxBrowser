@@ -82,3 +82,8 @@ void GPXRouteBase::outputXml(QDomDocument &document, QDomElement &routeBaseEleme
 		}
 	}
 }
+
+void GPXRouteBase::readXml(QDomElement &/*routeBaseElement*/)
+{
+	// TODO
+}

@@ -212,3 +212,11 @@ void GPXMetadata::outputXml(QDomDocument &document, QDomElement &metadataElement
 		metadataElement.appendChild(boundsElement);
 	}
 }
+
+void GPXMetadata::readXml(QDomElement &metadataElement)
+{
+	if (metadataElement.nodeName() != "metadata")
+	{
+		qDebug() << "GPXMetadata: Error: Unknown node name " << metadataElement.nodeName();
+	}
+}

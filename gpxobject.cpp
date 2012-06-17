@@ -6,13 +6,13 @@
 GPXObject::GPXObject(QObject *parent) :
 	QObject(parent)
 {
-	setVersion("1.1");
+	setVersion(GPX_1_1);
 	setCreator("GPXlib Alpha - https://bitbucket.org/aahlborg/gpxbrowser");
 
 	// DEBUG DATA
-	waypoints_.append(GPXWaypoint());
-	routes_.append(GPXRoute());
-	tracks_.append(GPXTrack());
+	//waypoints_.append(GPXWaypoint());
+	//routes_.append(GPXRoute());
+	//tracks_.append(GPXTrack());
 	// DEBUG DATA
 }
 
@@ -28,7 +28,7 @@ void GPXObject::saveToFile(QIODevice * file) const
 	gpx.setAttribute("xmlns", "http://www.topografix.com/GPX/1/1");
 	gpx.setAttribute("xmlns:xalan", "http://xml.apache.org/xalan");
 	gpx.setAttribute("xmlns:xsi", "http://www.w3.org/2001/XMLSchema-instance");
-	gpx.setAttribute("version", version_);
+	gpx.setAttribute("version", getVersionString());
 	gpx.setAttribute("creator", creator_);
 	doc.appendChild(gpx);
 
@@ -70,20 +70,129 @@ void GPXObject::saveToFile(QIODevice * file) const
 	qDebug() << "Saved file";
 }
 
-GPXObject * GPXObject::loadFromFile(const QString /*fileName*/)
+// DEBUG
+void printAttributes(QDomNode &node)
+{
+	qDebug() << "GPXObject: " << node.nodeName() << " attributes:";
+	for (int i = 0; i < node.attributes().count(); ++i)
+	{
+		qDebug() << "GPXObject: " << node.attributes().item(i).nodeName() << ": " << node.attributes().item(i).nodeValue();
+	}
+}
+void printChildren(QDomNode &node)
+{
+	qDebug() << "GPXObject: " << node.nodeName() << " children:";
+	for (int i = 0; i < node.childNodes().count(); ++i)
+	{
+		qDebug() << "GPXObject: " << node.childNodes().item(i).nodeName() << ": " << node.childNodes().item(i).nodeValue();
+	}
+}
+// DEBUG
+
+GPXObject * GPXObject::loadFromFile(QIODevice * file)
+{
+	QDomDocument doc;
+	QString errStr;
+	int errLine;
+	int errCol;
+
+	// Read and parse XML file
+	if (!doc.setContent(file, &errStr, &errLine, &errCol))
+	{
+		qDebug() << QString("GPXObject: Error: Parse error at line %1, column %2:\n%3").arg(errLine).arg(errCol).arg(errStr);
+		return NULL;
+	}
+
+	// Process root element, <gpx>
+	QDomElement gpx = doc.documentElement();
+	qDebug() << "GPXObject: NodeName: " << gpx.nodeName();
+	if (gpx.nodeName() != "gpx")
+	{
+		qDebug() << "GPXObject: Error: Invalid node name " << gpx.nodeName();
+		return NULL;
+	}
+
+	if (!gpx.hasAttribute("version"))
+	{
+		qDebug() << "GPXObject: Error: Missing version attribute";
+		return NULL;
+	}
+
+	GpxVersion version = getVersionFromString(gpx.attribute("version"));
+	if (GPX_INVALID_VERSION == version)
+	{
+		qDebug() << "GPXObject: Error: Invalid GPX version";
+		return NULL;
+	}
+
+	printAttributes(gpx);
+	printChildren(gpx);
+
+	// Create GPXObject
+	GPXObject * gpxObj = new GPXObject();
+	gpxObj->setVersion(version);
+
+	// Look through child nodes
+	for (int i = 0; i < gpx.childNodes().count(); ++i)
+	{
+		QDomElement child = gpx.childNodes().item(i).toElement();
+		if (child.nodeName() == "trk")
+		{
+			qDebug() << "GPXObject: Found track node";
+			GPXTrack track;
+			track.readXml(child);
+			gpxObj->getTracks()->append(track);
+		}
+	}
+
+	qDebug() << "GPXObject: Done";
+
+	return gpxObj;
+}
+
+void GPXObject::exportKML(const QIODevice * /*file*/) const
+{
+}
+
+GPXObject * GPXObject::importKML(const QIODevice * /*file*/)
 {
 	return NULL;
 }
 
-void GPXObject::exportKML(const QString /*fileName*/) const
+void GPXObject::exportCSV(const QIODevice * /*file*/) const
 {
 }
 
-GPXObject * GPXObject::importKML(QString /*fileName*/)
+GpxVersion GPXObject::getVersionFromString(QString versionStr)
 {
-	return NULL;
+	if (GPX_1_0_STR == versionStr)
+	{
+		return GPX_1_0;
+	}
+	else if (GPX_1_1_STR == versionStr)
+	{
+		return GPX_1_1;
+	}
+	else
+	{
+		qDebug() << "GPXObject: Error: Invalid GPX version string";
+		return GPX_INVALID_VERSION;
+	}
 }
 
-void GPXObject::exportCSV(const QString /*fileName*/) const
+QString GPXObject::getVersionString() const
 {
+	if (GPX_1_0 == version_)
+	{
+		return GPX_1_0_STR;
+	}
+	else if (GPX_1_1 == version_)
+	{
+		return GPX_1_1_STR;
+	}
+	else
+	{
+		qDebug() << "GPXObject: Error: Invalid GPX version";
+		return QString();
+	}
 }
