@@ -25,6 +25,8 @@ public:
 	void setActiveTileProvider(int index);
 	void clearPaths();
 	void addPath(QVector<QPointF> &path);
+	void clearWaypoints();
+	void addWaypoint(QPointF &wpt);
 
 	int activeTileProvider() { return activeTileProvider_; }
 	
@@ -57,6 +59,8 @@ private:
 	void drawTiles(QPainter &painter);
 	void drawPaths(QPainter &painter);
 	void drawPath(QPainter &painter, CoordinateList &path);
+	void drawWaypoints(QPainter &painter);
+	void drawWaypoint(QPainter &painter, QPointF wpt);
 
 	void moveMap(QPointF delta);
 
@@ -81,6 +85,7 @@ private:
 
 	// Paths and stuff
 	QVector<CoordinateList *> paths_;
+	CoordinateList waypoints_;
 };
 
 #endif // MAPVIEW_H

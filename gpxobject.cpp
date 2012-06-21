@@ -136,12 +136,36 @@ GPXObject * GPXObject::loadFromFile(QIODevice * file)
 	for (int i = 0; i < gpx.childNodes().count(); ++i)
 	{
 		QDomElement child = gpx.childNodes().item(i).toElement();
+
+		if (child.isNull())
+		{
+			qDebug() << "GPXObject: Warning: Node is not an element " << child.nodeName();
+		}
+
 		if (child.nodeName() == "trk")
 		{
 			qDebug() << "GPXObject: Found track node";
 			GPXTrack track;
 			track.readXml(child);
 			gpxObj->getTracks()->append(track);
+		}
+		else if (child.nodeName() == "rte")
+		{
+			qDebug() << "GPXObject: Found route node";
+			GPXRoute route;
+			route.readXml(child);
+			gpxObj->getRoutes()->append(route);
+		}
+		else if (child.nodeName() == "wpt")
+		{
+			qDebug() << "GPXObject: Found wpt node";
+			GPXWaypoint wpt;
+			wpt.readXml(child);
+			gpxObj->getWaypoints()->append(wpt);
+		}
+		else
+		{
+			qDebug() << "GPXObject: Warning: Skipping element " << child.nodeName();
 		}
 	}
 

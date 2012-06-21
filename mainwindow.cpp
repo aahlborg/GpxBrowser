@@ -153,6 +153,9 @@ void MainWindow::updatePathsToDraw()
 {
 	MapView * mapView = static_cast<MapView *>(ui->centralWidget);
 	mapView->clearPaths();
+	mapView->clearWaypoints();
+
+	// Add tracks
 	for (int i = 0; i < gpxObject_->getTracks()->size(); ++i)
 	{
 		qDebug() << "MainWindow: Found track";
@@ -172,6 +175,8 @@ void MainWindow::updatePathsToDraw()
 			mapView->addPath(path);
 		}
 	}
+
+	// Add paths
 	for (int i = 0; i < gpxObject_->getRoutes()->size();++i)
 	{
 		qDebug() << "MainWindow: Found route";
@@ -185,5 +190,13 @@ void MainWindow::updatePathsToDraw()
 			path.append(coord);
 		}
 		mapView->addPath(path);
+	}
+
+	// Add waypoints
+	for (int i = 0; i < gpxObject_->getWaypoints()->size(); ++i)
+	{
+		GPXWaypoint wpt = gpxObject_->getWaypoints()->at(i);
+		QPointF coord = QPointF(wpt.getLongitude(), wpt.getLatitude());
+		mapView->addWaypoint(coord);
 	}
 }

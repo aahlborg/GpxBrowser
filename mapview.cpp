@@ -292,6 +292,16 @@ void MapView::addPath(QVector<QPointF> &path)
 	update();
 }
 
+void MapView::clearWaypoints()
+{
+	waypoints_.clear();
+}
+
+void MapView::addWaypoint(QPointF &wpt)
+{
+	waypoints_.append(wpt);
+}
+
 void MapView::dataUpdated(TileManager * sender, int /*zoom*/, int /*x*/, int /*y*/)
 {
 	if (isActive() && sender == tileManagers_.at(activeTileProvider_))
@@ -306,9 +316,11 @@ void MapView::paintEvent(QPaintEvent * /*event*/)
 		return;
 
 	QPainter painter(this);
+	painter.setRenderHint(QPainter::Antialiasing);
 
 	drawTiles(painter);
 	drawPaths(painter);
+	drawWaypoints(painter);
 
 	int rowCount = 0;
 
@@ -384,6 +396,29 @@ void MapView::drawPath(QPainter &painter, CoordinateList &path)
 	painter.save();
 	painter.setPen(QPen(QBrush(Qt::red), 2));
 	painter.drawLines(pathLines);
+	painter.restore();
+}
+
+void MapView::drawWaypoints(QPainter &painter)
+{
+	for (int i = 0; i < waypoints_.size(); ++i)
+	{
+		drawWaypoint(painter, waypoints_.at(i));
+	}
+}
+
+void MapView::drawWaypoint(QPainter &painter, QPointF wpt)
+{
+	painter.save();
+
+	painter.setPen(QPen(QBrush(Qt::gray), 1.2));
+	painter.setBrush(Qt::white);
+	painter.drawEllipse(coordToCanvas(wpt), 6, 6);
+
+	painter.setPen(QPen(QBrush(Qt::gray), 1));
+	painter.setBrush(QColor(79, 155, 255));
+	painter.drawEllipse(coordToCanvas(wpt), 3, 3);
+
 	painter.restore();
 }
 

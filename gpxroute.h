@@ -29,6 +29,7 @@ public:
 
 	// GPX XML output
 	void outputXml(QDomDocument &document, QDomElement &routeElement) const;
+	void readXml(QDomElement &routeElement);
 
 private:
 	GPXPath path_;

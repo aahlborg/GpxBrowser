@@ -12,3 +12,11 @@ void GPXRoute::outputXml(QDomDocument &document, QDomElement &routeElement) cons
 	// Add route path
 	path_.outputXml(document, routeElement, "rtept");
 }
+
+void GPXRoute::readXml(QDomElement &routeElement)
+{
+	GPXRouteBase::readXml(routeElement);
+
+	qDebug() << "GPXRoute: Reading self as path";
+	path_.readXml(routeElement);
+}
