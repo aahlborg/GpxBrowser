@@ -270,6 +270,17 @@ void MapView::setActiveTileProvider(int index)
 	}
 
 	activeTileProvider_ = index;
+
+	// Check zoom level
+	if (zoom_ < tileManagers_.at(activeTileProvider_)->getMinZoom())
+	{
+		zoom_ = tileManagers_.at(activeTileProvider_)->getMinZoom();
+	}
+	else if (zoom_ > tileManagers_.at(activeTileProvider_)->getMaxZoom())
+	{
+		zoom_ = tileManagers_.at(activeTileProvider_)->getMaxZoom();
+	}
+
 	update();
 }
 
@@ -455,6 +466,13 @@ void MapView::moveMap(QPointF delta)
 
 void MapView::changeZoomDelta(const int zoomDelta, const QPointF staticPointCanvas)
 {
+	if (zoom_ + zoomDelta > tileManagers_.at(activeTileProvider_)->getMaxZoom() ||
+		zoom_ + zoomDelta < tileManagers_.at(activeTileProvider_)->getMinZoom())
+	{
+		// Invalid zoom level
+		return;
+	}
+
 	// The static and center canvas points are invariant during zoom
 	const QPointF centerCanvas = QPointF(width() / 2, height() / 2);
 	// These transformations are made before changing the zoom and center coordinate
@@ -521,17 +539,11 @@ void MapView::wheelEvent(QWheelEvent *event)
 	if (event->delta() > 0)
 	{
 		// Scroll forward, zoom in
-		if (zoom_ >= tileManagers_.at(activeTileProvider_)->getMaxZoom())
-			return;
-		// Flag new zoom level but don't change yet
 		zoomDelta = 1;
 	}
 	else
 	{
 		// Scroll backwards, zoom out
-		if (zoom_ <= tileManagers_.at(activeTileProvider_)->getMinZoom())
-			return;
-		// Flag new zoom level but don't change yet
 		zoomDelta = -1;
 	}
 
