@@ -1,7 +1,6 @@
 #ifndef MAPVIEW_H
 #define MAPVIEW_H
 
-//#include "tilemanager.h"
 #include <QWidget>
 #include <QList>
 #include <QVector>
@@ -37,10 +36,11 @@ public slots:
 
 protected:
 	void paintEvent(QPaintEvent *event);
-	void mouseMoveEvent(QMouseEvent * event);
-	void mousePressEvent(QMouseEvent * event);
-	void mouseReleaseEvent(QMouseEvent * event);
-	void wheelEvent(QWheelEvent * event);
+	void mouseMoveEvent(QMouseEvent *event);
+	void mousePressEvent(QMouseEvent *event);
+	void mouseReleaseEvent(QMouseEvent *event);
+	void wheelEvent(QWheelEvent *event);
+	void mouseDoubleClickEvent(QMouseEvent *event);
 
 private:
 	// Good transformations
@@ -61,8 +61,10 @@ private:
 	void drawPath(QPainter &painter, CoordinateList &path);
 	void drawWaypoints(QPainter &painter);
 	void drawWaypoint(QPainter &painter, QPointF wpt);
+	QPixmap * getWptMarker();
 
 	void moveMap(QPointF delta);
+	void changeZoomDelta(const int zoomDelta, const QPointF staticPointCanvas);
 
 	bool mousePressed_;
 
@@ -86,6 +88,7 @@ private:
 	// Paths and stuff
 	QVector<CoordinateList *> paths_;
 	CoordinateList waypoints_;
+	QPixmap *wptMarker_;
 };
 
 #endif // MAPVIEW_H

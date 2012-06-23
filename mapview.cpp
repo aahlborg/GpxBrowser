@@ -24,7 +24,8 @@ MapView::MapView(QWidget *parent) :
 	curCoord_(QPointF(0, 0)),
 	zoom_(1),
 	centerCoord_(QPointF(0, 0)),
-	activeTileProvider_(-1)
+	activeTileProvider_(-1),
+	wptMarker_(NULL)
 {
 	qDebug() << "MapView: Constructor";
 
@@ -300,6 +301,7 @@ void MapView::clearWaypoints()
 void MapView::addWaypoint(QPointF &wpt)
 {
 	waypoints_.append(wpt);
+	update();
 }
 
 void MapView::dataUpdated(TileManager * sender, int /*zoom*/, int /*x*/, int /*y*/)
@@ -343,7 +345,7 @@ void MapView::drawTiles(QPainter &painter)
 	QPoint lastTile = floorPoint(canvasToTile(bottomRightCanvas));
 
 	// Constraints
-	const int n = 0x1 << zoom_; // 2^zoom
+	const long n = 0x1 << zoom_; // 2^zoom
 	firstTile.setX(MAX(0, firstTile.x()));
 	firstTile.setY(MAX(0, firstTile.y()));
 	lastTile.setX(MIN(n - 1, lastTile.x()));
@@ -409,17 +411,39 @@ void MapView::drawWaypoints(QPainter &painter)
 
 void MapView::drawWaypoint(QPainter &painter, QPointF wpt)
 {
-	painter.save();
+	const QPixmap * wptMarker = getWptMarker();
+	const QPointF wptCanvas = coordToCanvas(wpt);
+	const QSize halfSize = wptMarker->size() / 2;
+	const QPointF origin(wptCanvas.x() - halfSize.width(), wptCanvas.y() - halfSize.height());
 
-	painter.setPen(QPen(QBrush(Qt::gray), 1.2));
-	painter.setBrush(Qt::white);
-	painter.drawEllipse(coordToCanvas(wpt), 6, 6);
+	painter.drawPixmap(origin, *wptMarker);
+}
 
-	painter.setPen(QPen(QBrush(Qt::gray), 1));
-	painter.setBrush(QColor(79, 155, 255));
-	painter.drawEllipse(coordToCanvas(wpt), 3, 3);
+QPixmap * MapView::getWptMarker()
+{
+	if (NULL == wptMarker_)
+	{
+		// Create one
+		const int size = 16;
+		QImage markerImg(QSize(size, size), QImage::Format_ARGB32);
+		markerImg.fill(qRgba(0, 0, 0, 0));
+		QPainter painter(&markerImg);
+		painter.setRenderHint(QPainter::Antialiasing);
 
-	painter.restore();
+		// Draw
+		painter.setPen(QPen(QBrush(Qt::gray), 1.2));
+		painter.setBrush(Qt::white);
+		painter.drawEllipse(QPoint(size / 2, size / 2), 6, 6);
+
+		painter.setPen(QPen(QBrush(Qt::gray), 1));
+		painter.setBrush(QColor(79, 155, 255));
+		painter.drawEllipse(QPoint(size / 2, size / 2), 3, 3);
+
+		// Create pixmap
+		wptMarker_ = new QPixmap(QPixmap::fromImage(markerImg));
+	}
+
+	return wptMarker_;
 }
 
 void MapView::moveMap(QPointF delta)
@@ -429,7 +453,29 @@ void MapView::moveMap(QPointF delta)
 	centerCoord_ = canvasToCoord(newCenterCanvas);
 }
 
-void MapView::mouseMoveEvent(QMouseEvent * event)
+void MapView::changeZoomDelta(const int zoomDelta, const QPointF staticPointCanvas)
+{
+	// The static and center canvas points are invariant during zoom
+	const QPointF centerCanvas = QPointF(width() / 2, height() / 2);
+	// These transformations are made before changing the zoom and center coordinate
+	const QPointF staticPointTileOld = canvasToTile(staticPointCanvas);
+	const QPointF centerTileOld = canvasToTile(centerCanvas);
+	// This relation will be valid for both the old and the new zoom
+	const QPointF staticPointCenterTile = centerTileOld - staticPointTileOld;
+	// Change zoom now
+	zoom_ += zoomDelta;
+	// The new tile can be calculated in this manner
+	const QPointF pointerTileNew = qPow(2, zoomDelta) * staticPointTileOld;
+	// The new center is the same number of tiles away
+	const QPointF centerTileNew = pointerTileNew + staticPointCenterTile;
+	// Tile <-> coordinate transformation uses the new zoom value,
+	// but doesn't rely on the center coordinate, which is being calculated
+	centerCoord_ = tileToCoord(centerTileNew);
+
+	update();
+}
+
+void MapView::mouseMoveEvent(QMouseEvent *event)
 {
 	if (mousePressed_)
 	{
@@ -446,7 +492,7 @@ void MapView::mouseMoveEvent(QMouseEvent * event)
 	}
 }
 
-void MapView::mousePressEvent(QMouseEvent * event)
+void MapView::mousePressEvent(QMouseEvent *event)
 {
 	if (event->button() == Qt::LeftButton)
 	{
@@ -459,7 +505,7 @@ void MapView::mousePressEvent(QMouseEvent * event)
 	}
 }
 
-void MapView::mouseReleaseEvent(QMouseEvent * event)
+void MapView::mouseReleaseEvent(QMouseEvent *event)
 {
 	if (event->button() == Qt::LeftButton)
 	{
@@ -468,7 +514,7 @@ void MapView::mouseReleaseEvent(QMouseEvent * event)
 	}
 }
 
-void MapView::wheelEvent(QWheelEvent * event)
+void MapView::wheelEvent(QWheelEvent *event)
 {
 	int zoomDelta = 0;
 
@@ -489,32 +535,19 @@ void MapView::wheelEvent(QWheelEvent * event)
 		zoomDelta = -1;
 	}
 
-	// Calculate new center coordinate, keeping coordinate under pointer constant
+	// Change zoom, keeping the mouse pointer position static
+	changeZoomDelta(zoomDelta, QPointF(event->pos()));
+}
 
-	// These canvas points are invariant during zoom
-	const QPointF pointerCanvas = QPointF(event->pos());
-	const QPointF centerCanvas = QPointF(width() / 2, height() / 2);
-	// These transformations are made before changing the zoom and center coordinate
-	const QPointF pointerTileOld = canvasToTile(pointerCanvas);
-	const QPointF centerTileOld = canvasToTile(centerCanvas);
-	// This relation will be valid for both the old and the new zoom
-	const QPointF pointerCenterTile = centerTileOld - pointerTileOld;
-	// Change zoom now
-	zoom_ += zoomDelta;
-	// The new tile can be calculated in this manner
-	const QPointF pointerTileNew = qPow(2, zoomDelta) * pointerTileOld;
-	// The new center is the same number of tiles away
-	const QPointF centerTileNew = pointerTileNew + pointerCenterTile;
-	// Tile <-> coordinate transformation uses the new zoom value,
-	// but doesn't rely on the center coordinate, which is being calculated
-	centerCoord_ = tileToCoord(centerTileNew);
-
-	update();
+void MapView::mouseDoubleClickEvent(QMouseEvent *event)
+{
+	// Zoom in one step, keeping the mouse pointer position static
+	changeZoomDelta(1, QPointF(event->pos()));
 }
 
 QPointF MapView::tileToCoord(const QPointF tile)
 {
-	const int n = 0x1 << zoom_; // 2^zoom
+	const long n = 0x1 << zoom_; // 2^zoom
 
 	const double coordX = tile.x() / n * 360.0 - 180.0;
 	const double coordY = qAtan(sinh(pi * (1 - 2 * tile.y() / n))) * 180.0 / pi;
@@ -524,7 +557,7 @@ QPointF MapView::tileToCoord(const QPointF tile)
 
 QPointF MapView::coordToTile(const QPointF coord)
 {
-	const int n = 0x1 << zoom_; // 2^zoom
+	const long n = 0x1 << zoom_; // 2^zoom
 	const double radLat = coord.y() * pi / 180.0;
 
 	const double tileX = ((coord.x() + 180.0) / 360.0) * n;
@@ -533,7 +566,7 @@ QPointF MapView::coordToTile(const QPointF coord)
 	return QPointF(tileX, tileY);
 }
 
-QPointF MapView::canvasToTile(const QPointF canvas) // FEL
+QPointF MapView::canvasToTile(const QPointF canvas)
 {
 	const QPointF centerTile = coordToTile(centerCoord_);
 	const QPointF centerCanvas = QPointF(width() / 2, height() / 2);
@@ -544,7 +577,7 @@ QPointF MapView::canvasToTile(const QPointF canvas) // FEL
 	return QPointF(canvasX, canvasY);
 }
 
-QPointF MapView::tileToCanvas(const QPointF tile) // FEL
+QPointF MapView::tileToCanvas(const QPointF tile)
 {
 	const QPointF centerTile = coordToTile(centerCoord_);
 	const QPointF centerCanvas = QPointF(width() / 2, height() / 2);
