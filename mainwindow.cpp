@@ -9,13 +9,13 @@
 
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
-    ui(new Ui::MainWindow)
+	ui(new Ui::MainWindow),
+	gpxObject_(NULL)
 {
 	ui->setupUi(this);
 
 	updateTileProviderList();
 
-	gpxObject_ = new GPXObject();
 	updatePathsToDraw();
 }
 
@@ -59,7 +59,8 @@ void MainWindow::on_actionOpen_triggered()
 		file.close();
 
 		// Replace GPX object
-		delete gpxObject_;
+		if (NULL != gpxObject_)
+			delete gpxObject_;
 		gpxObject_ = gpxObject;
 		updatePathsToDraw();
 	}
@@ -155,6 +156,9 @@ void MainWindow::updatePathsToDraw()
 	mapView->clearPaths();
 	mapView->clearWaypoints();
 
+	if (NULL == gpxObject_)
+		return;
+
 	// Add tracks
 	for (int i = 0; i < gpxObject_->getTracks()->size(); ++i)
 	{
@@ -199,4 +203,129 @@ void MainWindow::updatePathsToDraw()
 		QPointF coord = QPointF(wpt.getLongitude(), wpt.getLatitude());
 		mapView->addWaypoint(coord);
 	}
+}
+
+QString MainWindow::formatDistance(int meters)
+{
+	if (meters < 1000)
+	{
+		return QString("%1m").arg(QString::number(meters));
+	}
+	else
+	{
+		const double kilometers = meters / 1000.0;
+
+		int decimals;
+		if (kilometers < 10.0)
+			decimals = 2;
+		else if (kilometers < 100)
+			decimals = 1;
+		else
+			decimals = 0;
+
+		return QString("%1km").arg(QString::number(kilometers, 'f', decimals));
+	}
+}
+
+QString MainWindow::formatTimeSpan(int seconds)
+{
+	const int oneMinute = 60;
+	const int oneHour = 60 * oneMinute;
+	const int oneDay = 24 * oneHour;
+	const int oneYear = 365 * oneDay;
+
+	const int years = seconds / oneYear;
+	seconds -= years * oneYear;
+	const int days = seconds / oneDay;
+	seconds -= days * oneDay;
+	const int hours = seconds / oneHour;
+	seconds -= hours * oneHour;
+	const int minutes = seconds / oneMinute;
+	seconds -= minutes * oneMinute;
+
+	QString yearsText;
+	if (0 != years)
+		yearsText = QString("%1y ").arg(QString::number(years));
+	else
+		yearsText = "";
+
+	QString daysText;
+	if (0 != days)
+		daysText = QString("%1d ").arg(QString::number(days));
+	else
+		daysText = "";
+
+	QString text = QString("%1%2%3:%4:%5").arg(
+				yearsText).arg(
+				daysText).arg(
+				QString::number(hours)).arg(
+				QString::number(minutes), 2, '0').arg(
+				QString::number(seconds), 2, '0');
+	return text;
+}
+
+void MainWindow::on_actionLength_triggered()
+{
+	if (NULL == gpxObject_)
+	{
+		QMessageBox info(this);
+		info.setWindowTitle("Gpx Browser");
+		info.setText("No file is open");
+		info.setIcon(QMessageBox::Critical);
+		info.exec();
+		return;
+	}
+
+	QString message = "Length of tracks:\n";
+	double totalLength = 0.0;
+
+	for (int i = 0; i < gpxObject_->getTracks()->size(); ++i)
+	{
+		double trackLen = gpxObject_->getTracks()->at(i).length();
+		message += QString("\nTrack %1: %2").arg(QString::number(i), formatDistance((int)trackLen));
+		totalLength += trackLen;
+	}
+
+	message += QString("\n\nTotal: %1").arg(formatDistance((int)totalLength));
+
+	QMessageBox msgBox(this);
+	msgBox.setWindowTitle("Track length");
+	msgBox.setText(message);
+	msgBox.setIcon(QMessageBox::Information);
+	msgBox.exec();
+}
+
+void MainWindow::on_actionDuration_triggered()
+{
+	if (NULL == gpxObject_)
+	{
+		QMessageBox info(this);
+		info.setWindowTitle("Gpx Browser");
+		info.setText("No file is open");
+		info.setIcon(QMessageBox::Critical);
+		info.exec();
+		return;
+	}
+
+	QString message = "Duration of tracks:\n";
+	double totalDuration = 0.0;
+
+	for (int i = 0; i < gpxObject_->getTracks()->size(); ++i)
+	{
+		double trackTime = gpxObject_->getTracks()->at(i).duration();
+
+		message += QString("\nTrack %1: %2").arg(
+					QString::number(i)).arg(
+					formatTimeSpan((int)trackTime));
+
+		totalDuration += trackTime;
+	}
+
+	message += QString("\n\nTotal: %1").arg(formatTimeSpan((int)totalDuration));
+
+	QMessageBox msgBox(this);
+	msgBox.setWindowTitle("Track duration");
+	msgBox.setText(message);
+	msgBox.setIcon(QMessageBox::Information);
+	msgBox.exec();
 }

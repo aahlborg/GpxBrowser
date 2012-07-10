@@ -84,6 +84,9 @@ public:
 	void readXml(QDomElement &wptElement);
 
 private:
+	// Internal functions
+	void clearData();
+
 	// Position data
 	double latitude_;
 	double longitude_;

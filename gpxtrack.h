@@ -34,6 +34,10 @@ public:
 	void outputXml(QDomDocument &document, QDomElement &trackElement) const;
 	void readXml(QDomElement &trackElement);
 
+	// Calculations methods
+	double length() const;
+	double duration() const;
+
 private:
 	QVector<GPXPath> trackSegments_;
 };

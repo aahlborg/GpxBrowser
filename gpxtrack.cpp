@@ -39,3 +39,27 @@ void GPXTrack::readXml(QDomElement &trackElement)
 		}
 	}
 }
+
+double GPXTrack::length() const
+{
+	double trackLength = 0.0;
+
+	for (int i = 0; i < trackSegments_.size(); ++i)
+	{
+		trackLength += trackSegments_.at(i).length();
+	}
+
+	return trackLength;
+}
+
+double GPXTrack::duration() const
+{
+	double trackDuration = 0.0;
+
+	for (int i = 0; i < trackSegments_.size(); ++i)
+	{
+		trackDuration += trackSegments_.at(i).duration();
+	}
+
+	return trackDuration;
+}

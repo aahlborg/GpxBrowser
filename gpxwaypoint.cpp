@@ -6,13 +6,7 @@
 
 GPXWaypoint::GPXWaypoint()
 {
-	setPosition(0.0, 0.0);
-	clearElevation();
-	clearTime();
-	clearName();
-	clearComment();
-	clearDescription();
-	clearLinks();
+	clearData();
 
 	// DEBUG DATA
 	/*setPosition(58.34824, 18.23421);
@@ -31,7 +25,13 @@ GPXWaypoint::GPXWaypoint()
 
 GPXWaypoint::GPXWaypoint(const double newLatitude, const double newLongitude)
 {
+	clearData();
 	setPosition(newLatitude, newLongitude);
+}
+
+void GPXWaypoint::clearData()
+{
+	setPosition(0.0, 0.0);
 	clearElevation();
 	clearTime();
 	clearName();
@@ -87,8 +87,8 @@ void GPXWaypoint::removeLink(const int linkIndex)
 
 double GPXWaypoint::distanceTo(const GPXWaypoint &otherWpt) const
 {
-	double lat1 = GPXUtilities::toRad(otherWpt.getLatitude());
-	double lon1 = GPXUtilities::toRad(otherWpt.getLongitude());
+	double lat1 = GPXUtilities::toRad(getLatitude());
+	double lon1 = GPXUtilities::toRad(getLongitude());
 	double lat2 = GPXUtilities::toRad(otherWpt.getLatitude());
 	double lon2 = GPXUtilities::toRad(otherWpt.getLongitude());
 
@@ -97,8 +97,8 @@ double GPXWaypoint::distanceTo(const GPXWaypoint &otherWpt) const
 
 double GPXWaypoint::headingTo(const GPXWaypoint &otherWpt) const
 {
-	double lat1 = GPXUtilities::toRad(otherWpt.getLatitude());
-	double lon1 = GPXUtilities::toRad(otherWpt.getLongitude());
+	double lat1 = GPXUtilities::toRad(getLatitude());
+	double lon1 = GPXUtilities::toRad(getLongitude());
 	double lat2 = GPXUtilities::toRad(otherWpt.getLatitude());
 	double lon2 = GPXUtilities::toRad(otherWpt.getLongitude());
 
@@ -203,6 +203,18 @@ void GPXWaypoint::readXml(QDomElement &wptElement)
 	longitude_ = wptElement.attribute("lon").toDouble();
 
 	//qDebug() << "GPXWaypoint: Lat: " << latitude_ << "  Lon: " << longitude_;
+
+	for (int i = 0; i < wptElement.childNodes().count(); ++i)
+	{
+		QDomElement child = wptElement.childNodes().item(i).toElement();
+
+		if (child.nodeName() == "time")
+		{
+			QString timeStr = child.childNodes().at(0).nodeValue();
+			//qDebug() << "GPXWaypoint: Found time node: " << timeStr;
+			setTime(GPXDateTime::fromString(timeStr));
+		}
+	}
 
 	// TODO: Read other data
 }

@@ -22,18 +22,16 @@ public:
 	static bool validateBounds(const BoundsType bounds);
 
 private:
-	// Private settings
-	static bool useEllipsoid; // Whether to use ellipsoid or spherical Earth in calculations
-
 	// Private constants
 	static const double pi; // Blueberry flavored favorite constant
 	static const double earthMeanSphereRadius; // Minimizes root mean square of distance calculations
+	static const double wgs84EquatorialRadius; // Radius at equator on the WGS84 spheroid
+	static const double wgs84ReciprocalFlattening; // The inverse flattening of the WGS84 spheroid
 
 	// Private methods
 	static double distanceTo_sphere(const double lat1, const double lon1, const double lat2, const double lon2);
-	static double distanceTo_ellipsoid(const double lat1, const double lon1, const double lat2, const double lon2);
+	static double distanceTo_lambert(const double lat1, const double lon1, const double lat2, const double lon2);
 	static double headingTo_sphere(const double lat1, const double lon1, const double lat2, const double lon2);
-	static double headingTo_ellipsoid(const double lat1, const double lon1, const double lat2, const double lon2);
 };
 
 //

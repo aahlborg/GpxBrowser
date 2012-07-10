@@ -31,6 +31,10 @@ public:
 	void outputXml(QDomDocument &document, QDomElement &routeElement) const;
 	void readXml(QDomElement &routeElement);
 
+	// Calculations methods
+	double length() const { return path_.length(); }
+	double duration() const { return path_.duration(); }
+
 private:
 	GPXPath path_;
 };
