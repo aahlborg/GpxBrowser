@@ -31,6 +31,9 @@ private slots:
 	void on_actionDuration_triggered();
 
 private:
+	// Application global functions
+	void appInit();
+
 	// Misc functions
 	void updateTileProviderList();
 	void updatePathsToDraw();

@@ -6,6 +6,7 @@
 #include <QDebug>
 #include <QFileDialog>
 #include <QtAlgorithms>
+#include <QNetworkProxyFactory>
 
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
@@ -13,6 +14,9 @@ MainWindow::MainWindow(QWidget *parent) :
 	gpxObject_(NULL)
 {
 	ui->setupUi(this);
+
+	// Run application initialization code
+	appInit();
 
 	updateTileProviderList();
 
@@ -22,6 +26,12 @@ MainWindow::MainWindow(QWidget *parent) :
 MainWindow::~MainWindow()
 {
 	delete ui;
+}
+
+void MainWindow::appInit()
+{
+	// Set proxy settings to system defaults, if supported
+	QNetworkProxyFactory::setUseSystemConfiguration(true);
 }
 
 void MainWindow::on_action_About_Gpx_Browser_triggered()
