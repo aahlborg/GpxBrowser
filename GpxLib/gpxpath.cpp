@@ -92,9 +92,9 @@ void GPXPath::outputXml(QDomDocument &document, QDomElement &pathElement, const 
 
 void GPXPath::readXml(QDomElement &pathElement)
 {
-	for (int i = 0; i < pathElement.childNodes().count(); ++i)
+	QDomElement child = pathElement.firstChildElement();
+	while (!child.isNull())
 	{
-		QDomElement child = pathElement.childNodes().item(i).toElement();
 		if (child.nodeName() == "trkpt" ||
 			child.nodeName() == "rtept")
 		{
@@ -103,5 +103,6 @@ void GPXPath::readXml(QDomElement &pathElement)
 			wpt.readXml(child);
 			waypoints_.append(wpt);
 		}
+		child = child.nextSiblingElement();
 	}
 }

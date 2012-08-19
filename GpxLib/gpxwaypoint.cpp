@@ -204,16 +204,17 @@ void GPXWaypoint::readXml(QDomElement &wptElement)
 
 	//qDebug() << "GPXWaypoint: Lat: " << latitude_ << "  Lon: " << longitude_;
 
-	for (int i = 0; i < wptElement.childNodes().count(); ++i)
+	QDomElement child = wptElement.firstChildElement();
+	while (!child.isNull())
 	{
-		QDomElement child = wptElement.childNodes().item(i).toElement();
-
 		if (child.nodeName() == "time")
 		{
 			QString timeStr = child.childNodes().at(0).nodeValue();
 			//qDebug() << "GPXWaypoint: Found time node: " << timeStr;
 			setTime(GPXDateTime::fromString(timeStr));
 		}
+
+		child = child.nextSiblingElement();
 	}
 
 	// TODO: Read other data

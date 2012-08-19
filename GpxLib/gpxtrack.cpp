@@ -27,9 +27,9 @@ void GPXTrack::readXml(QDomElement &trackElement)
 {
 	GPXRouteBase::readXml(trackElement);
 
-	for (int i = 0; i < trackElement.childNodes().count(); ++i)
+	QDomElement child = trackElement.firstChildElement();
+	while (!child.isNull())
 	{
-		QDomElement child = trackElement.childNodes().item(i).toElement();
 		if (child.nodeName() == "trkseg")
 		{
 			qDebug() << "GPXTrack: Found track segment node";
@@ -37,6 +37,8 @@ void GPXTrack::readXml(QDomElement &trackElement)
 			trackSeg.readXml(child);
 			trackSegments_.append(trackSeg);
 		}
+
+		child = child.nextSiblingElement();
 	}
 }
 

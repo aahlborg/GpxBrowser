@@ -133,15 +133,9 @@ GPXObject * GPXObject::loadFromFile(QIODevice * file)
 	gpxObj->setVersion(version);
 
 	// Look through child nodes
-	for (int i = 0; i < gpx.childNodes().count(); ++i)
+	QDomElement child = gpx.firstChildElement();
+	while (!child.isNull())
 	{
-		QDomElement child = gpx.childNodes().item(i).toElement();
-
-		if (child.isNull())
-		{
-			qDebug() << "GPXObject: Warning: Node is not an element " << child.nodeName();
-		}
-
 		if (child.nodeName() == "trk")
 		{
 			qDebug() << "GPXObject: Found track node";
@@ -167,6 +161,8 @@ GPXObject * GPXObject::loadFromFile(QIODevice * file)
 		{
 			qDebug() << "GPXObject: Warning: Skipping element " << child.nodeName();
 		}
+
+		child = child.nextSiblingElement();
 	}
 
 	qDebug() << "GPXObject: Done";
