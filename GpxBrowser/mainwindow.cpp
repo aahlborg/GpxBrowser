@@ -2,9 +2,9 @@
 #include "ui_mainwindow.h"
 #include "gpxobject.h"
 #include "tileprovider.h"
-#include <QMessageBox>
+#include <QtWidgets/QMessageBox>
 #include <QDebug>
-#include <QFileDialog>
+#include <QtWidgets/QFileDialog>
 #include <QtAlgorithms>
 #include <QNetworkProxyFactory>
 

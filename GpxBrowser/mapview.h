@@ -1,7 +1,7 @@
 #ifndef MAPVIEW_H
 #define MAPVIEW_H
 
-#include <QWidget>
+#include <QtWidgets/QWidget>
 #include <QList>
 #include <QVector>
 
