@@ -11,7 +11,11 @@
    </rect>
   </property>
   <property name="windowTitle">
-   <string>MainWindow</string>
+   <string>GPX Browser</string>
+  </property>
+  <property name="windowIcon">
+   <iconset resource="gpxbrowser.qrc">
+    <normaloff>:/Icon/Map1.ico</normaloff>:/Icon/Map1.ico</iconset>
   </property>
   <widget class="MapView" name="centralWidget"/>
   <widget class="QMenuBar" name="menuBar">
@@ -101,6 +105,8 @@
    <container>1</container>
   </customwidget>
  </customwidgets>
- <resources/>
+ <resources>
+  <include location="gpxbrowser.qrc"/>
+ </resources>
  <connections/>
 </ui>

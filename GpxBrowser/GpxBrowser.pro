@@ -35,3 +35,12 @@ DEPENDPATH += $$PWD/../GpxLib
 win32:CONFIG(release, debug|release): PRE_TARGETDEPS += $$OUT_PWD/../GpxLib/release/GpxLib.lib
 else:win32:CONFIG(debug, debug|release): PRE_TARGETDEPS += $$OUT_PWD/../GpxLib/debug/GpxLib.lib
 else:unix:!symbian: PRE_TARGETDEPS += $$OUT_PWD/../GpxLib/libGpxLib.a
+
+OTHER_FILES += \
+    Map1.ico \
+    icon.rc
+
+RC_FILE = icon.rc
+
+RESOURCES += \
+    gpxbrowser.qrc
