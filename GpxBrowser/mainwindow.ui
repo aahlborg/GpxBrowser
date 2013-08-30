@@ -67,7 +67,7 @@
   </action>
   <action name="action_About_Gpx_Browser">
    <property name="text">
-    <string>&amp;About Gpx Browser...</string>
+    <string>&amp;About GPX Browser...</string>
    </property>
   </action>
   <action name="actionAbout_Qt">

@@ -1,3 +1,10 @@
+/* Copyright (c) 2013 Marcus Ahlberg
+ *
+ * This file is part of GPX Browser and distributed under
+ * the Simplified BSD License. For full terms, see the
+ * included LICENSE file.
+ */
+
 /** @class GPXDateTime
  * Handles date and time in UTC and provides methods
  * for printing GPX format date and time

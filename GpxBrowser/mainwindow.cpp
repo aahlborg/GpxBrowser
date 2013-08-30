@@ -1,3 +1,10 @@
+/* Copyright (c) 2013 Marcus Ahlberg
+ *
+ * This file is part of GPX Browser and distributed under
+ * the Simplified BSD License. For full terms, see the
+ * included LICENSE file.
+ */
+
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
 #include "gpxobject.h"
@@ -36,12 +43,14 @@ void MainWindow::appInit()
 
 void MainWindow::on_action_About_Gpx_Browser_triggered()
 {
-	QString text = QString::fromLocal8Bit("Gpx Browser Alpha\n"
-			"Copyright \u00a9 2012-2013 Marcus Ahlberg\n"
+	QString text = QString::fromLocal8Bit("GPX Browser\n"
+			"\n"
+			"Copyright \u00a9 2013 Marcus Ahlberg\n"
+			"Distributed under the Simplified BSD License\n"
 			"\n"
 			"This program is currently under development.\n"
 			"Please report bugs at https://bitbucket.org/aahlborg/gpxbrowser.");
-	QMessageBox::about(this, "About Gpx Browser", text);
+	QMessageBox::about(this, "About GPX Browser", text);
 }
 
 void MainWindow::on_actionAbout_Qt_triggered()
