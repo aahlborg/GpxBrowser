@@ -12,9 +12,10 @@ static const double pi = 3.14159265358979323846;
 static const int tileSize = 256;
 
 TileManager::TileManager(TileProvider * provider) :
-	QObject(NULL)
+	QObject(NULL),
+	debugMode_(false),
+	tileProvider_(provider)
 {
-	tileProvider_ = provider;
 	connect(tileProvider_, SIGNAL(tileReady(int,int,int,QPixmap*)), this, SLOT(tileReady(int,int,int,QPixmap*)));
 }
 
@@ -129,11 +130,13 @@ QPixmap * TileManager::createTile(int zoom, int x, int y)
 	painter.setBackground(QBrush(Qt::white));
 	painter.fillRect(0, 0, tileSize, tileSize, QBrush(Qt::white));
 
-	painter.drawText(100, 80, "zoom: " + QString::number(zoom));
-	painter.drawText(100, 100, "x: " + QString::number(x));
-	painter.drawText(100, 120, "y: " + QString::number(y));
-
-	painter.drawRect(0, 0, tileSize, tileSize);
+	if (debugMode_)
+	{
+		painter.drawText(100, 80, "zoom: " + QString::number(zoom));
+		painter.drawText(100, 100, "x: " + QString::number(x));
+		painter.drawText(100, 120, "y: " + QString::number(y));
+		painter.drawRect(0, 0, tileSize, tileSize);
+	}
 
 	QPixmap * tile = new QPixmap(QPixmap::fromImage(tileImg));
 

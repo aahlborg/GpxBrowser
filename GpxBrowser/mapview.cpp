@@ -18,6 +18,7 @@ static const int tileSize = 256;
 MapView::MapView(QWidget *parent) :
 	QWidget(parent),
 	mousePressed_(false),
+	debugMode_(false),
 	updateCount_(0),
 	curCanvas_(QPointF(0, 0)),
 	curTile_(QPointF(0, 0)),
@@ -32,41 +33,24 @@ MapView::MapView(QWidget *parent) :
 	setMouseTracking(true);
 	setAutoFillBackground(true);
 
-	//QString serverVariants[] = {"a", "b", "c"}; // OSM
-	QList<QString> serverVariants; // Google, Bing, Eniro
-	serverVariants.append("1");
-	serverVariants.append("2");
-	serverVariants.append("3");
+	QList<QString> serverVariants123; // Google, Bing
+	serverVariants123.append("1");
+	serverVariants123.append("2");
+	serverVariants123.append("3");
 
-	QList<QString> serverVariantsOSM; // OSM
-	serverVariantsOSM.append("a");
-	serverVariantsOSM.append("b");
-	serverVariantsOSM.append("c");
-
-	// Open street map Mapnik, servers: a-c
-	QString osmMapnikURL = "http://%4.tile.openstreetmap.org/%1/%2/%3.png";
-	// Open sycle map, servers: a-c
-	QString osmCycleMapURL = "http://%4.tile.opencyclemap.org/cycle/%1/%2/%3.png";
-	// Topological shadows for overlaying osm maps
-	QString topologyTilesURL = "http://toolserver.org/~cmarqu/hill/%1/%2/%3.png";
-	// Eniro nautical, servers: 01-06
-	QString eniroNauticalURL = "http://map0%4.eniro.no/geowebcache/service/tms1.0.0/nautical/%1/%2/%3.png";
-	// Eniro map, servers: 01-06
-	QString eniroMapURL = "http://map0%4.eniro.no/geowebcache/service/tms1.0.0/map/%1/%2/%3.png";
-	// Eniro aerial, servers: 01-06
-	QString eniroAerialURL = "http://map0%4.eniro.no/geowebcache/service/tms1.0.0/aerial/%1/%2/%3.jpeg";
-	// Hitta.se map
-	QString hittaMapURL = "http://bf.static.hitta.se/tile/v1/0/%1/%2/%3";
-	QString hittaAerialURL = "http://bf.static.hitta.se/tile/v1/1/%1/%2/%3";
+	QList<QString> serverVariantsAbc; // OSM
+	serverVariantsAbc.append("a");
+	serverVariantsAbc.append("b");
+	serverVariantsAbc.append("c");
 
 	TileProviderInfo providerInfo;
 
 	// Bing Maps
 	providerInfo.name = "Bing Maps";
-	providerInfo.copyright = "Copyright Bing";
+	providerInfo.copyright = QString::fromLocal8Bit("\u00a9 Bing");
 	providerInfo.url = "http://ecn.dynamic.t%4.tiles.virtualearth.net/comp/CompositionHandler/%1?it=G,VE,BX,L,LA&shading=hill";
 	providerInfo.serverList.clear();
-	providerInfo.serverList.append(serverVariants);
+	providerInfo.serverList.append(serverVariants123);
 	providerInfo.numConnections = 8;
 	providerInfo.minZoom = 1;
 	providerInfo.maxZoom = 18;
@@ -77,10 +61,10 @@ MapView::MapView(QWidget *parent) :
 
 	// Google Maps
 	providerInfo.name = "Google Maps";
-	providerInfo.copyright = "Copyright Google";
+	providerInfo.copyright = QString::fromLocal8Bit("\u00a9 Google");
 	providerInfo.url = "http://mt%4.google.com/vt/&z=%1&x=%2&y=%3";
 	providerInfo.serverList.clear();
-	providerInfo.serverList.append(serverVariants);
+	providerInfo.serverList.append(serverVariants123);
 	providerInfo.numConnections = 8;
 	providerInfo.minZoom = 1;
 	providerInfo.maxZoom = 18;
@@ -91,10 +75,10 @@ MapView::MapView(QWidget *parent) :
 
 	// Google Aerial
 	providerInfo.name = "Google Aerial";
-	providerInfo.copyright = "Copyright Google";
+	providerInfo.copyright = QString::fromLocal8Bit("\u00a9 Google");
 	providerInfo.url = "http://khm%4.google.se/kh/v=111&z=%1&x=%2&s=&y=%3";
 	providerInfo.serverList.clear();
-	providerInfo.serverList.append(serverVariants);
+	providerInfo.serverList.append(serverVariants123);
 	providerInfo.numConnections = 8;
 	providerInfo.minZoom = 1;
 	providerInfo.maxZoom = 18;
@@ -105,10 +89,10 @@ MapView::MapView(QWidget *parent) :
 
 	// Google Terrain
 	providerInfo.name = "Google Terrain";
-	providerInfo.copyright = "Copyright Google";
+	providerInfo.copyright = QString::fromLocal8Bit("\u00a9 Google");
 	providerInfo.url = "http://mt%4.google.com/vt/lyrs=t,r&z=%1&x=%2&y=%3";
 	providerInfo.serverList.clear();
-	providerInfo.serverList.append(serverVariants);
+	providerInfo.serverList.append(serverVariants123);
 	providerInfo.numConnections = 8;
 	providerInfo.minZoom = 1;
 	providerInfo.maxZoom = 15;
@@ -119,10 +103,10 @@ MapView::MapView(QWidget *parent) :
 
 	// OSM Mapnik
 	providerInfo.name = "OSM Mapnik";
-	providerInfo.copyright = "Copyright OpenStreetMap contributors";
+	providerInfo.copyright = QString::fromLocal8Bit("\u00a9 OpenStreetMap contributors");
 	providerInfo.url = "http://%4.tile.openstreetmap.org/%1/%2/%3.png";
 	providerInfo.serverList.clear();
-	providerInfo.serverList.append(serverVariantsOSM);
+	providerInfo.serverList.append(serverVariantsAbc);
 	providerInfo.numConnections = 2;
 	providerInfo.minZoom = 1;
 	providerInfo.maxZoom = 18;
@@ -133,10 +117,10 @@ MapView::MapView(QWidget *parent) :
 
 	// OSM Cyklemap
 	providerInfo.name = "OSM Cyclemap";
-	providerInfo.copyright = "Copyright OpenStreetMap contributors";
+	providerInfo.copyright = QString::fromLocal8Bit("\u00a9 OpenStreetMap contributors");
 	providerInfo.url = "http://%4.tile.opencyclemap.org/cycle/%1/%2/%3.png";
 	providerInfo.serverList.clear();
-	providerInfo.serverList.append(serverVariantsOSM);
+	providerInfo.serverList.append(serverVariantsAbc);
 	providerInfo.numConnections = 2;
 	providerInfo.minZoom = 1;
 	providerInfo.maxZoom = 18;
@@ -144,78 +128,6 @@ MapView::MapView(QWidget *parent) :
 	providerInfo.invertY = false;
 	providerInfo.quadKey = false;
 	addTileProvider(providerInfo);
-
-	// Eniro Map
-	providerInfo.name = "Eniro Map";
-	providerInfo.copyright = "Copyright Eniro";
-	providerInfo.url = "http://map0%4.eniro.no/geowebcache/service/tms1.0.0/map/%1/%2/%3.png";
-	providerInfo.serverList.clear();
-	providerInfo.serverList.append(serverVariants);
-	providerInfo.numConnections = 4;
-	providerInfo.minZoom = 1;
-	providerInfo.maxZoom = 17;
-	providerInfo.invertX = false;
-	providerInfo.invertY = true;
-	providerInfo.quadKey = false;
-	addTileProvider(providerInfo);
-
-	// Eniro Aerial
-	providerInfo.name = "Eniro Aerial";
-	providerInfo.copyright = "Copyright Eniro";
-	providerInfo.url = "http://map0%4.eniro.no/geowebcache/service/tms1.0.0/aerial/%1/%2/%3.jpeg";
-	providerInfo.serverList.clear();
-	providerInfo.serverList.append(serverVariants);
-	providerInfo.numConnections = 4;
-	providerInfo.minZoom = 2;
-	providerInfo.maxZoom = 18;
-	providerInfo.invertX = false;
-	providerInfo.invertY = true;
-	providerInfo.quadKey = false;
-	addTileProvider(providerInfo);
-
-	// Eniro Nautical
-	providerInfo.name = "Eniro Nautical";
-	providerInfo.copyright = "Copyright Eniro";
-	providerInfo.url = "http://map0%4.eniro.no/geowebcache/service/tms1.0.0/nautical/%1/%2/%3.png";
-	providerInfo.serverList.clear();
-	providerInfo.serverList.append(serverVariants);
-	providerInfo.numConnections = 4;
-	providerInfo.minZoom = 1;
-	providerInfo.maxZoom = 17;
-	providerInfo.invertX = false;
-	providerInfo.invertY = true;
-	providerInfo.quadKey = false;
-	addTileProvider(providerInfo);
-
-	/* Hitta redirects does not work
-	// Hitta Map
-	providerInfo.name = "Hitta Map";
-	providerInfo.copyright = "Copyright Hitta.se";
-	providerInfo.url = "http://bf.static.hitta.se/tile/v1/0/%1/%2/%3";
-	providerInfo.serverList.clear();
-	//providerInfo.serverList.append(serverVariants);
-	providerInfo.numConnections = 4;
-	providerInfo.minZoom = 1;
-	providerInfo.maxZoom = 17;
-	providerInfo.invertX = false;
-	providerInfo.invertY = false;
-	providerInfo.quadKey = false;
-	addTileProvider(providerInfo);
-
-	// Hitta Aerial
-	providerInfo.name = "Hitta Aerial";
-	providerInfo.copyright = "Copyright Hitta.se";
-	providerInfo.url = "http://bf.static.hitta.se/tile/v1/1/%1/%2/%3";
-	providerInfo.serverList.clear();
-	//providerInfo.serverList.append(serverVariants);
-	providerInfo.numConnections = 4;
-	providerInfo.minZoom = 1;
-	providerInfo.maxZoom = 17;
-	providerInfo.invertX = false;
-	providerInfo.invertY = false;
-	providerInfo.quadKey = false;
-	addTileProvider(providerInfo);
-	*/
 
 	activeTileProvider_ = 0;
 }
@@ -284,6 +196,12 @@ void MapView::setActiveTileProvider(int index)
 	update();
 }
 
+void MapView::setDebugMode(bool debugMode)
+{
+	debugMode_ = debugMode;
+	tileManagers_.at(activeTileProvider_)->setDebugMode(debugMode);
+}
+
 void MapView::clearPaths()
 {
 	qDeleteAll(paths_);
@@ -335,17 +253,18 @@ void MapView::paintEvent(QPaintEvent * /*event*/)
 	drawPaths(painter);
 	drawWaypoints(painter);
 
-	int rowCount = 0;
-
-	ProviderStatistics stats = tileManagers_.at(activeTileProvider_)->providerStats();
-
-	painter.drawText(6, 15 * ++rowCount, QString("Canvas: %1 %2").arg(curCanvas_.x()).arg(curCanvas_.y()));
-	painter.drawText(6, 15 * ++rowCount, QString("Coordinates: %1 %2").arg(curCoord_.x()).arg(curCoord_.y()));
-	painter.drawText(6, 15 * ++rowCount, QString("Zoom: %1").arg(zoom_));
-	painter.drawText(6, 15 * ++rowCount, QString("Tile: %1 %2").arg(curTile_.x()).arg(curTile_.y()));
-	painter.drawText(6, 15 * ++rowCount, QString("Updates: %1").arg(++updateCount_));
-	painter.drawText(6, 15 * ++rowCount, QString("Download: %1 MiB").arg(stats.numReceivedBytes / 1048576.0));
-	painter.drawText(6, 15 * ++rowCount, QString("Tiles requested/provided: %1/%2").arg(stats.numRequestedTiles).arg(stats.numProvidedTiles));
+	if (debugMode_)
+	{
+		ProviderStatistics stats = tileManagers_.at(activeTileProvider_)->providerStats();
+		int rowCount = 0;
+		painter.drawText(6, 15 * ++rowCount, QString("Canvas: %1 %2").arg(curCanvas_.x()).arg(curCanvas_.y()));
+		painter.drawText(6, 15 * ++rowCount, QString("Coordinates: %1 %2").arg(curCoord_.x()).arg(curCoord_.y()));
+		painter.drawText(6, 15 * ++rowCount, QString("Zoom: %1").arg(zoom_));
+		painter.drawText(6, 15 * ++rowCount, QString("Tile: %1 %2").arg(curTile_.x()).arg(curTile_.y()));
+		painter.drawText(6, 15 * ++rowCount, QString("Updates: %1").arg(++updateCount_));
+		painter.drawText(6, 15 * ++rowCount, QString("Download: %1 MiB").arg(stats.numReceivedBytes / 1048576.0));
+		painter.drawText(6, 15 * ++rowCount, QString("Tiles requested/provided: %1/%2").arg(stats.numRequestedTiles).arg(stats.numProvidedTiles));
+	}
 }
 
 void MapView::drawTiles(QPainter &painter)
@@ -375,6 +294,9 @@ void MapView::drawTiles(QPainter &painter)
 			}
 		}
 	}
+
+	// Draw copyright text
+	painter.drawText(6, height() - 8, tileManagers_.at(activeTileProvider_)->copyrightText());
 }
 
 void MapView::drawPaths(QPainter &painter)

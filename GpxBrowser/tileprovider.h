@@ -61,6 +61,7 @@ public:
 
 	bool requestTile(int zoom, int x, int y);
 	ProviderStatistics statistics() { return stats_; }
+	TileProviderInfo info() { return info_; }
 
 signals:
 	void tileReady(int zoom, int x, int y, QPixmap * tile);

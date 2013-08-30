@@ -26,6 +26,10 @@ public:
 	void purge();
 
 	ProviderStatistics providerStats() { return tileProvider_->statistics(); }
+	QString copyrightText() { return tileProvider_->info().copyright; }
+
+	bool debugMode() { return debugMode_; }
+	void setDebugMode(bool debugMode) { debugMode_ = debugMode; }
 
 signals:
 	void dataUpdated(TileManager * sender, int zoom, int x, int y);
@@ -39,6 +43,8 @@ private:
 
 	TileList tiles_;
 	TileProvider * tileProvider_;
+
+	bool debugMode_;
 };
 
 #endif // TILEMANAGER_H

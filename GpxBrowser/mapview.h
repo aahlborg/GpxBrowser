@@ -26,8 +26,10 @@ public:
 	void addPath(QVector<QPointF> &path);
 	void clearWaypoints();
 	void addWaypoint(QPointF &wpt);
+	void setDebugMode(bool debugMode);
 
 	int activeTileProvider() { return activeTileProvider_; }
+	bool debugMode() { return debugMode_; }
 	
 signals:
 	
@@ -69,6 +71,7 @@ private:
 	bool mousePressed_;
 
 	// Debug and fun
+	bool debugMode_;
 	int updateCount_;
 
 	QPointF curCanvas_;
